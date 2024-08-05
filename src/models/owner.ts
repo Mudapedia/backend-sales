@@ -13,9 +13,21 @@ const schemaOwner = new mongoose.Schema(
       type: String,
       required: true,
     },
-    password: {
-      type: String,
-      required: true,
+    authentication: {
+      password: {
+        type: String,
+        select: false,
+        required: true,
+      },
+      salt: {
+        type: String,
+        select: false,
+        required: true,
+      },
+      token: {
+        type: String,
+        select: false,
+      },
     },
     sales: [salesSchema],
     inventory: [inventorySchema],
