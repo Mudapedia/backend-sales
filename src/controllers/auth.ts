@@ -2,11 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import ResponseErr from "../middlewares/responseError";
 import { RegisterOwner } from "../requestBody/auth";
 import AuthValidation from "../validation/auth";
-import OwnerCol from "../models/owner";
 import random from "../helpers/salt";
 import authServices from "../services/auth";
 import encription from "../helpers/encription";
-import { isValidObjectId } from "mongoose";
 
 const authControl = {
   async registerOwner(req: Request, res: Response, next: NextFunction) {
