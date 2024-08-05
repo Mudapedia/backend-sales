@@ -39,4 +39,3 @@ const authControl = {
 };
 
 export default authControl;
-=
