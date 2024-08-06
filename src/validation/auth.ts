@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { LoginOwner, RegisterOwner } from "../requestBody/auth";
+import { LoginOwner, RegisterOwner } from "../types/requestBody/auth";
 
 class Schema {
   protected static get schemaRegisterOwner() {

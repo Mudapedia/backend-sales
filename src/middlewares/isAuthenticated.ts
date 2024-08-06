@@ -1,23 +1,57 @@
 import express, { NextFunction, Request, Response } from "express";
 import ResponseErr from "./responseError";
-import { getByToken } from "../services/auth";
+import { getById, getByToken } from "../services/auth";
+import jwtVerify from "../helpers/jwtVerify";
+import { DecodedJwt } from "../types/authJwt";
+import { JwtPayload } from "jsonwebtoken";
+import { isValidObjectId } from "mongoose";
+import { CustomReq } from "../types/expressTypes";
 
 const isAuthenticated = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.cookies);
-  const token = req.cookies["SALES-APP"];
-  // if (!token) {
-  //   throw new ResponseErr("Forbidden", 403);
-  // }
+  try {
+    const customReq: CustomReq = req as CustomReq;
 
-  // const user = await getByToken(token);
-  // if (!user) {
-  //   throw new ResponseErr("Forbidden", 403);
-  // }
-  // return next();
+    const ReqToken: string | undefined = customReq.headers.authorization;
+    if (!ReqToken) {
+      throw new ResponseErr("Forbidden", 403);
+    }
+
+    const [schema, token] = ReqToken.split(" ");
+
+    if (schema !== "Bearer") {
+      throw new ResponseErr("Forbidden", 403);
+    }
+
+    if (!process.env.SECRET_KEY) {
+      throw new Error("Invalid env");
+    }
+
+    const decoded: DecodedJwt = await jwtVerify(token, process.env.SECRET_KEY);
+    if (!isValidObjectId(decoded._id)) {
+      throw new ResponseErr("Forbidden", 403);
+    }
+
+    const user = await getById(decoded._id).select(
+      "+authentication.token +authentication.password"
+    );
+
+    if (!user) {
+      throw new ResponseErr("Forbidden", 403);
+    }
+
+    if (decoded.token !== user.authentication?.token) {
+      throw new ResponseErr("Forbidden", 403);
+    }
+
+    customReq._id = decoded._id;
+    next();
+  } catch (error) {
+    next(error);
+  }
 };
 
 export default isAuthenticated;

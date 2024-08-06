@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { getById } from "../services/auth";
 import ResponseErr from "../middlewares/responseError";
+import { CustomReq } from "../types/expressTypes";
 
 const ownerControl = {
-  get(req: Request, res: Response, next: NextFunction) {
+  async get(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.params.id;
-      const user = getById(userId);
+      const customReq: CustomReq = req as CustomReq;
+      const user = await getById(customReq._id);
       if (!user) {
         throw new ResponseErr("User tidak ditemukan.", 400);
       }

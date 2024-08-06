@@ -1,5 +1,5 @@
 import OwnerCol from "../models/owner";
-import { RegisterOwner } from "../requestBody/auth";
+import { RegisterOwner } from "../types/requestBody/auth";
 
 export const registerOwner = async (body: RegisterOwner) => {
   const insert = new OwnerCol({

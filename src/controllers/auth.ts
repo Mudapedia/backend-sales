@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import ResponseErr from "../middlewares/responseError";
-import { LoginOwner, RegisterOwner } from "../requestBody/auth";
+import { LoginOwner, RegisterOwner } from "../types/requestBody/auth";
 import AuthValidation from "../validation/auth";
 import random from "../helpers/salt";
 import { getByEmail, registerOwner } from "../services/auth";
 import encription from "../helpers/encription";
+import jwt from "jsonwebtoken";
 
 const authControl = {
   async registerOwner(req: Request, res: Response, next: NextFunction) {
@@ -44,7 +45,7 @@ const authControl = {
     );
 
     if (!user) {
-      throw new Error("user tidak ditemukan.");
+      throw new ResponseErr("Periksa email dan password anda", 400);
     }
     if (!process.env.SECRET_KEY) {
       throw new Error("env error");
@@ -57,23 +58,23 @@ const authControl = {
     );
 
     if (expectedHash !== user.authentication.password) {
-      throw new ResponseErr("Forbidden", 403);
+      throw new ResponseErr("Periksa email dan password anda", 400);
     }
 
     const salt = random();
-    user.authentication.token = encription(
-      salt,
-      user._id,
-      process.env.SECRET_KEY
-    );
+    const token = encription(salt, user._id, process.env.SECRET_KEY);
+    user.authentication.token = token;
     await user.save();
 
-    res.cookie("SALES-APP", user.authentication.token, {
-      domain: "localhost",
-      path: "/",
-    });
-    console.log(req);
-    return res.status(200).json(user).end();
+    const tokenJWT = jwt.sign(
+      { _id: user._id, token: token },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    return res.status(200).json({ message: "Login berhasil", token: tokenJWT });
   },
 };
 
