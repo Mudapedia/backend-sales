@@ -55,7 +55,7 @@ const inventoryControl = {
       }
 
       const body: InventoryEdit = customReq.body;
-      await InventoryValidation.add(body);
+      await InventoryValidation.edit(body);
 
       const result = await editInventoryService(
         body,

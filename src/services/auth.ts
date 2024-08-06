@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import OwnerCol from "../models/owner";
 import { RegisterOwner } from "../types/requestBody/auth";
 
@@ -23,4 +24,23 @@ export const getByToken = (token: string) => {
 
 export const getById = (id: string) => {
   return OwnerCol.findOne({ _id: id });
+};
+
+export const getDetailById = (id: string) => {
+  return OwnerCol.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        username: 1,
+        email: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    },
+  ]);
 };
