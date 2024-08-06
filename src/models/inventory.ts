@@ -10,13 +10,15 @@ const inventorySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    qty_Gudang: {
+    qty_gudang: {
       type: Number,
       required: true,
+      default: 0,
     },
     qty_sales: {
       type: Number,
       required: true,
+      default: 0,
     },
   },
   {
