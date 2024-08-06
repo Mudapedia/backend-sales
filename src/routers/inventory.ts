@@ -4,7 +4,6 @@ import isAuthenticated from "../middlewares/isAuthenticated";
 
 const inventoryRoute: express.Router = express.Router();
 
-// inventoryRoute.get("/api/owner/inventory");
 inventoryRoute.post(
   "/api/owner/inventory",
   isAuthenticated,
@@ -15,6 +14,15 @@ inventoryRoute.put(
   isAuthenticated,
   inventoryControl.edit
 );
-// inventoryRoute.delete("/api/owner/inventory/:id");
+inventoryRoute.get(
+  "/api/owner/inventory",
+  isAuthenticated,
+  inventoryControl.getAllProduk
+);
+inventoryRoute.delete(
+  "/api/owner/inventory/delete/:idProduk",
+  isAuthenticated,
+  inventoryControl.deleteProduk
+);
 
 export default inventoryRoute;

@@ -2,6 +2,23 @@ import mongoose from "mongoose";
 import OwnerCol from "../models/owner";
 import { InventoryAdd, InventoryEdit } from "../types/requestBody/inventory";
 
+export const getProductsByOwner = (id: string) => {
+  return OwnerCol.findById(id).select("inventory");
+};
+
+export const deleteProductByIdProduct = (id: string, id_produk: string) => {
+  return OwnerCol.updateOne(
+    { _id: new mongoose.Types.ObjectId(id) },
+    {
+      $pull: {
+        inventory: {
+          _id: new mongoose.Types.ObjectId(id_produk),
+        },
+      },
+    }
+  );
+};
+
 export const addInventoryService = (body: InventoryAdd, id: string) => {
   return OwnerCol.updateOne(
     { _id: id },
