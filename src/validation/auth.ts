@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { RegisterOwner } from "../requestBody/auth";
+import { LoginOwner, RegisterOwner } from "../requestBody/auth";
 
 class Schema {
   protected static get schemaRegisterOwner() {
@@ -9,11 +9,22 @@ class Schema {
       password: Joi.string().trim().min(8).required(),
     });
   }
+  protected static get schemaLoginOwner() {
+    return Joi.object({
+      email: Joi.string().trim().required(),
+      password: Joi.string().trim().required(),
+    });
+  }
 }
 
 class AuthValidation extends Schema {
   static registerOwner(body: RegisterOwner) {
     return this.schemaRegisterOwner.validateAsync(body, {
+      abortEarly: false,
+    });
+  }
+  static loginOwner(body: LoginOwner) {
+    return this.schemaLoginOwner.validateAsync(body, {
       abortEarly: false,
     });
   }

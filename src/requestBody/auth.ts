@@ -4,3 +4,8 @@ export interface RegisterOwner {
   password: string;
   salt: string;
 }
+
+export interface LoginOwner {
+  email: string;
+  password: string;
+}
