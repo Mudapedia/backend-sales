@@ -5,7 +5,6 @@ import InventoryValidation from "../validation/inventory";
 import {
   addInventoryService,
   editInventoryService,
-  getByIdInventory,
   getByKodeProdukInventory,
   deleteProductByIdProduct,
   getProductsByOwner,
@@ -58,16 +57,15 @@ const inventoryControl = {
       const body: InventoryEdit = customReq.body;
       await InventoryValidation.add(body);
 
-      const inventory = await getByIdInventory(
+      const result = await editInventoryService(
+        body,
         customReq._id,
         customReq.params.id
       );
 
-      if (!inventory.length) {
+      if (result.modifiedCount === 0) {
         throw new ResponseErr("Inventory not found", 404);
       }
-
-      await editInventoryService(body, customReq._id, customReq.params.id);
 
       res.status(200).json({ message: "Berhasil mengubah inventory" });
     } catch (error) {

@@ -37,44 +37,50 @@ const authControl = {
   },
 
   async loginOwner(req: Request, res: Response, next: NextFunction) {
-    const body: LoginOwner = req.body;
-    await AuthValidation.loginOwner(body);
+    try {
+      const body: LoginOwner = req.body;
+      await AuthValidation.loginOwner(body);
 
-    const user: any = await getByEmail(body.email).select(
-      "+authentication.salt +authentication.password"
-    );
+      const user: any = await getByEmail(body.email).select(
+        "+authentication.salt +authentication.password"
+      );
 
-    if (!user) {
-      throw new ResponseErr("Periksa email dan password anda", 400);
-    }
-    if (!process.env.SECRET_KEY) {
-      throw new Error("env error");
-    }
-
-    const expectedHash = encription(
-      user.authentication?.salt,
-      body.password,
-      process.env.SECRET_KEY
-    );
-
-    if (expectedHash !== user.authentication.password) {
-      throw new ResponseErr("Periksa email dan password anda", 400);
-    }
-
-    const salt = random();
-    const token = encription(salt, user._id, process.env.SECRET_KEY);
-    user.authentication.token = token;
-    await user.save();
-
-    const tokenJWT = jwt.sign(
-      { _id: user._id, token: token },
-      process.env.SECRET_KEY,
-      {
-        expiresIn: "1d",
+      if (!user) {
+        throw new ResponseErr("Periksa email dan password anda", 400);
       }
-    );
+      if (!process.env.SECRET_KEY) {
+        throw new Error("env error");
+      }
 
-    return res.status(200).json({ message: "Login berhasil", token: tokenJWT });
+      const expectedHash = encription(
+        user.authentication?.salt,
+        body.password,
+        process.env.SECRET_KEY
+      );
+
+      if (expectedHash !== user.authentication.password) {
+        throw new ResponseErr("Periksa email dan password anda", 400);
+      }
+
+      const salt = random();
+      const token = encription(salt, user._id, process.env.SECRET_KEY);
+      user.authentication.token = token;
+      await user.save();
+
+      const tokenJWT = jwt.sign(
+        { _id: user._id, token: token },
+        process.env.SECRET_KEY,
+        {
+          expiresIn: "1d",
+        }
+      );
+
+      return res
+        .status(200)
+        .json({ message: "Login berhasil", token: tokenJWT });
+    } catch (error) {
+      next(error);
+    }
   },
 };
 
