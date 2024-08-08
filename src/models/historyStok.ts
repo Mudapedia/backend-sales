@@ -1,19 +1,31 @@
 import mongoose from "mongoose";
 
+const listProduk = new mongoose.Schema({
+  id_produk: {
+    type: String,
+    required: true,
+  },
+  kode_produk: {
+    type: String,
+    required: true,
+  },
+  nama_produk: {
+    type: String,
+    required: true,
+  },
+  qty: {
+    type: Number,
+    required: true,
+  },
+});
+
 const historyStok = new mongoose.Schema(
   {
-    kode_produk: {
+    kode_restock: {
       type: String,
       required: true,
     },
-    nama_produk: {
-      type: String,
-      required: true,
-    },
-    qty: {
-      type: Number,
-      required: true,
-    },
+    list_produk: [listProduk],
   },
   {
     timestamps: true,
