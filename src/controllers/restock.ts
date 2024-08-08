@@ -4,6 +4,7 @@ import { typeRestock } from "../types/requestBody/restock";
 import RestockValidation from "../validation/restock";
 import { newRestock, updateQtyInventory } from "../services/restok";
 import ResponseErr from "../middlewares/responseError";
+import { ulid } from "ulid";
 
 const restockControl = {
   async add(req: Request, res: Response, next: NextFunction) {
@@ -11,6 +12,11 @@ const restockControl = {
       const customReq: CustomReq = req as CustomReq;
       const body: typeRestock = customReq.body;
       await RestockValidation.add(body);
+
+      const kode = ulid();
+      const new_body = Object.assign(body, {
+        ["kode_restock"]: kode,
+      });
 
       const result = await newRestock(body, customReq._id);
 
@@ -37,8 +43,7 @@ const restockControl = {
       }
 
       return res.status(200).json({
-        message: "ok",
-        result_update: resultUpdate,
+        message: "Data berhasil ditambahkan.",
       });
     } catch (error) {
       next(error);

@@ -4,7 +4,6 @@ import { typeRestock } from "../types/requestBody/restock";
 class schema {
   protected static get schemaRestockAdd() {
     return Joi.object({
-      kode_restock: Joi.string().trim().required(),
       list_produk: Joi.array().items(
         Joi.object({
           id_produk: Joi.string().trim().required(),

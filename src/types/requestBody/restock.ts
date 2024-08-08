@@ -6,6 +6,5 @@ interface listBarang {
 }
 
 export interface typeRestock {
-  kode_restock: string;
   list_produk: [listBarang];
 }
