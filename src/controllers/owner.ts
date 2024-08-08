@@ -7,7 +7,13 @@ import SalesValidation from "../validation/sales";
 import { registerSalesService } from "../services/owner";
 import random from "../helpers/salt";
 import encription from "../helpers/encription";
-import { searchSalesByUsernameService } from "../services/sales";
+import {
+  editSalesService,
+  searchSalesByIdService,
+  searchSalesByUsernameService,
+} from "../services/sales";
+import { EditSales } from "../types/requestBody/owner";
+import { isValidObjectId } from "mongoose";
 
 const ownerControl = {
   async get(req: Request, res: Response, next: NextFunction) {
@@ -26,7 +32,7 @@ const ownerControl = {
   async registerSales(req: Request, res: Response, next: NextFunction) {
     try {
       const customReq: CustomReq = req as CustomReq;
-      const body: RegisterSales = req.body;
+      const body: RegisterSales = customReq.body;
 
       await SalesValidation.register(body);
 
@@ -50,6 +56,42 @@ const ownerControl = {
       await registerSalesService(customReq._id, body);
 
       res.status(201).json({ message: "Register sales berhasil" });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async editSales(req: Request, res: Response, next: NextFunction) {
+    try {
+      const customReq: CustomReq = req as CustomReq;
+      const body: EditSales = customReq.body;
+
+      const idSales: string = customReq.params.id;
+      if (!isValidObjectId(idSales)) {
+        throw new ResponseErr("Invalid paramter", 400);
+      }
+
+      await SalesValidation.edit(body);
+
+      const check = await searchSalesByIdService(customReq._id, idSales);
+      if (!check.length) {
+        throw new ResponseErr("Sales not found", 404);
+      }
+
+      if (check[0].sales.username !== body.username) {
+        const checkUsername: any = await searchSalesByUsernameService(
+          customReq._id,
+          body.username
+        );
+
+        if (checkUsername.length) {
+          throw new ResponseErr("Username udah ada", 400);
+        }
+      }
+
+      await editSalesService(customReq._id, idSales, body);
+
+      res.status(200).json({ message: "Berhasil edit sales" });
     } catch (error) {
       next(error);
     }

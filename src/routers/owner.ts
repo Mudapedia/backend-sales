@@ -13,5 +13,6 @@ ownerRoute.post(
   isAuthenticated,
   ownerControl.registerSales
 );
+ownerRoute.put("/api/owner/sales/:id", isAuthenticated, ownerControl.editSales);
 
 export default ownerRoute;

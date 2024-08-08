@@ -1,5 +1,6 @@
 import Joi from "joi";
 import { LoginSales, RegisterSales } from "../types/requestBody/auth";
+import { EditSales } from "../types/requestBody/owner";
 
 class Schema {
   protected static get schemaRegisterSales() {
@@ -18,6 +19,15 @@ class Schema {
       password: Joi.string().trim().required(),
     });
   }
+
+  protected static get schemaEditSales() {
+    return Joi.object({
+      nama: Joi.string().trim().required(),
+      username: Joi.string().trim().required(),
+      noHP: Joi.string().trim().required(),
+      alamat: Joi.string().trim().required(),
+    });
+  }
 }
 
 class SalesValidation extends Schema {
@@ -29,6 +39,12 @@ class SalesValidation extends Schema {
 
   static login(body: LoginSales) {
     return this.schemaLoginSales.validateAsync(body, {
+      abortEarly: false,
+    });
+  }
+
+  static edit(body: EditSales) {
+    return this.schemaEditSales.validateAsync(body, {
       abortEarly: false,
     });
   }
