@@ -1,11 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import ResponseErr from "../middlewares/responseError";
-import { LoginOwner, RegisterOwner } from "../types/requestBody/auth";
+import {
+  LoginOwner,
+  LoginSales,
+  RegisterOwner,
+} from "../types/requestBody/auth";
 import AuthValidation from "../validation/auth";
 import random from "../helpers/salt";
 import { getByEmail, registerOwner } from "../services/auth";
 import encription from "../helpers/encription";
 import jwt from "jsonwebtoken";
+import { CustomReq } from "../types/expressTypes";
+import SalesValidation from "../validation/sales";
+import {
+  editPasswordAndSaltSalesService,
+  searchSalesByUsernameService,
+} from "../services/sales";
 
 const authControl = {
   async registerOwner(req: Request, res: Response, next: NextFunction) {
@@ -78,6 +88,54 @@ const authControl = {
       return res
         .status(200)
         .json({ message: "Login berhasil", token: tokenJWT });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async loginSales(req: Request, res: Response, next: NextFunction) {
+    try {
+      const customReq: CustomReq = req as CustomReq;
+      const body: LoginSales = req.body;
+      await SalesValidation.login(body);
+
+      const user: any = await searchSalesByUsernameService(
+        customReq._id,
+        body.username
+      );
+
+      if (!user.length) {
+        throw new ResponseErr("Periksa username atau password anda", 400);
+      }
+
+      if (!process.env.SECRET_KEY) {
+        throw new Error("Invalid env");
+      }
+
+      const expectedHash = encription(
+        user[0].sales.salt,
+        body.password,
+        process.env.SECRET_KEY
+      );
+
+      if (user[0].sales.password !== expectedHash) {
+        throw new ResponseErr("Periksa username atau password anda", 400);
+      }
+
+      const salt = random();
+      const hashPassword = encription(
+        salt,
+        body.password,
+        process.env.SECRET_KEY
+      );
+      await editPasswordAndSaltSalesService(
+        customReq._id,
+        user[0].sales._id,
+        hashPassword,
+        salt
+      );
+
+      res.status(200).json({ message: "Login sales berhasil" });
     } catch (error) {
       next(error);
     }
