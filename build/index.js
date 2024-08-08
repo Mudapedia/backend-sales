@@ -13,14 +13,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./src/app"));
+const mongoose_1 = __importDefault(require("mongoose"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            if (!process.env.DB) {
+                throw new Error("env invalid");
+            }
+            yield mongoose_1.default.connect(process.env.DB);
             app_1.default.listen(3000, function () {
                 console.log("Server is running");
             });
         }
-        catch (error) { }
+        catch (error) {
+            console.log(error);
+        }
     });
 }
 main();
