@@ -22,6 +22,7 @@ const salesSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    salt: String,
   },
   {
     timestamps: true,
