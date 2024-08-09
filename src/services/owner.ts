@@ -1,6 +1,5 @@
 import { RegisterSales } from "../types/requestBody/auth";
 import OwnerCol from "../models/owner";
-import mongoose from "mongoose";
 
 export const registerSalesService = async (id: string, body: RegisterSales) => {
   return OwnerCol.updateOne(
@@ -9,7 +8,16 @@ export const registerSalesService = async (id: string, body: RegisterSales) => {
     },
     {
       $push: {
-        sales: body,
+        sales: {
+          nama: body.nama,
+          username: body.username,
+          noHP: body.noHP,
+          alamat: body.alamat,
+          authentication: {
+            password: body.password,
+            salt: body.salt,
+          },
+        },
       },
     }
   );

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import OwnerCol from "../models/owner";
 import { InventoryAdd, InventoryEdit } from "../types/requestBody/inventory";
+import { DataSales } from "../types/requestBody/sales";
 
 export const getProductsByOwner = (id: string) => {
   return OwnerCol.findById(id).select("inventory");
@@ -92,6 +93,36 @@ export const getByIdInventory = (id: string, idInventory: string) => {
         _id: 1,
         username: 1,
         inventory: 1,
+      },
+    },
+  ]);
+};
+
+export const getManyInventory = (
+  id: string,
+  query: mongoose.Types.ObjectId[]
+) => {
+  return OwnerCol.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $unwind: "$inventory",
+    },
+    {
+      $project: {
+        _id: 1,
+        username: 1,
+        inventory: 1,
+      },
+    },
+    {
+      $match: {
+        "inventory._id": {
+          $in: query,
+        },
       },
     },
   ]);

@@ -28,6 +28,30 @@ export const searchSalesByUsernameService = (id: string, username: string) => {
   ]);
 };
 
+export const searchSalesByUsernameLoginService = (
+  id: string,
+  username: string
+) => {
+  return OwnerCol.aggregate([
+    {
+      $unwind: "$sales",
+    },
+    {
+      $match: {
+        "sales.username": username,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        username: 1,
+        email: 1,
+        sales: 1,
+      },
+    },
+  ]);
+};
+
 export const editPasswordAndSaltSalesService = (
   id: string,
   idSales: string,

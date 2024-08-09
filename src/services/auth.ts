@@ -26,6 +26,16 @@ export const getById = (id: string) => {
   return OwnerCol.findOne({ _id: id });
 };
 
+export const getByIdSales = (id: string) => {
+  return OwnerCol.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+    },
+  ]);
+};
+
 export const getDetailById = (id: string) => {
   return OwnerCol.aggregate([
     {
