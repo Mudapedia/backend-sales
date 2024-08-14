@@ -18,6 +18,8 @@ const salt_1 = __importDefault(require("../helpers/salt"));
 const auth_2 = require("../services/auth");
 const encription_1 = __importDefault(require("../helpers/encription"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const sales_1 = __importDefault(require("../validation/sales"));
+const sales_2 = require("../services/sales");
 const authControl = {
     registerOwner(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -62,6 +64,7 @@ const authControl = {
                 const salt = (0, salt_1.default)();
                 const token = (0, encription_1.default)(salt, user._id, process.env.SECRET_KEY);
                 user.authentication.token = token;
+                console.log("masuk login");
                 yield user.save();
                 const tokenJWT = jsonwebtoken_1.default.sign({ _id: user._id, token: token }, process.env.SECRET_KEY, {
                     expiresIn: "1d",
@@ -69,6 +72,21 @@ const authControl = {
                 return res
                     .status(200)
                     .json({ message: "Login berhasil", token: tokenJWT });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    },
+    loginSales(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const customReq = req;
+                const body = req.body;
+                yield sales_1.default.login(body);
+                const user = yield (0, sales_2.searchSalesByUsernameLoginService)(customReq._id, body.username);
+                console.log(user);
+                res.status(200).json({ message: "Login sales berhasil" });
             }
             catch (error) {
                 next(error);

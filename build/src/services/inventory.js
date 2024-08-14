@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getByIdInventory = exports.getByKodeProdukInventory = exports.editInventoryService = exports.addInventoryService = exports.deleteProductByIdProduct = exports.getProductsByOwner = void 0;
+exports.getManyInventory = exports.getByIdInventory = exports.getByKodeProdukInventory = exports.editInventoryService = exports.addInventoryService = exports.deleteProductByIdProduct = exports.getProductsByOwner = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const owner_1 = __importDefault(require("../models/owner"));
 const getProductsByOwner = (id) => {
@@ -88,3 +88,30 @@ const getByIdInventory = (id, idInventory) => {
     ]);
 };
 exports.getByIdInventory = getByIdInventory;
+const getManyInventory = (id, query) => {
+    return owner_1.default.aggregate([
+        {
+            $match: {
+                _id: new mongoose_1.default.Types.ObjectId(id),
+            },
+        },
+        {
+            $unwind: "$inventory",
+        },
+        {
+            $project: {
+                _id: 1,
+                username: 1,
+                inventory: 1,
+            },
+        },
+        {
+            $match: {
+                "inventory._id": {
+                    $in: query,
+                },
+            },
+        },
+    ]);
+};
+exports.getManyInventory = getManyInventory;
