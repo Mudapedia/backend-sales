@@ -1,5 +1,20 @@
 import mongoose from "mongoose";
 
+const schemaInventorySales = new mongoose.Schema({
+  kode_produk: {
+    type: String,
+    required: true,
+  },
+  nama_produk: {
+    type: String,
+    required: true,
+  },
+  qty_produk: {
+    type: String,
+    required: true,
+  },
+});
+
 const salesSchema = new mongoose.Schema(
   {
     nama: {
@@ -18,10 +33,21 @@ const salesSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    password: {
-      type: String,
-      required: true,
+    authentication: {
+      password: {
+        type: String,
+        required: true,
+      },
+      salt: {
+        type: String,
+        required: true,
+      },
+      token: {
+        type: String,
+        default: null,
+      },
     },
+    inventory: [schemaInventorySales],
   },
   {
     timestamps: true,
