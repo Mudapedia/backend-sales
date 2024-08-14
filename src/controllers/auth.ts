@@ -75,6 +75,7 @@ const authControl = {
       const salt = random();
       const token = encription(salt, user._id, process.env.SECRET_KEY);
       user.authentication.token = token;
+      console.log("masuk login");
       await user.save();
 
       const tokenJWT = jwt.sign(
