@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDetailById = exports.getById = exports.getByToken = exports.getByEmail = exports.registerOwner = void 0;
+exports.getDetailById = exports.getByIdSales = exports.getById = exports.getByToken = exports.getByEmail = exports.registerOwner = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const owner_1 = __importDefault(require("../models/owner"));
 const registerOwner = (body) => __awaiter(void 0, void 0, void 0, function* () {
@@ -39,6 +39,16 @@ const getById = (id) => {
     return owner_1.default.findOne({ _id: id });
 };
 exports.getById = getById;
+const getByIdSales = (id) => {
+    return owner_1.default.aggregate([
+        {
+            $match: {
+                _id: new mongoose_1.default.Types.ObjectId(id),
+            },
+        },
+    ]);
+};
+exports.getByIdSales = getByIdSales;
 const getDetailById = (id) => {
     return owner_1.default.aggregate([
         {
