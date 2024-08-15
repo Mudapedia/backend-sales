@@ -12,7 +12,7 @@ inventoryRoute.post(
 inventoryRoute.put(
   "/api/owner/inventory/:id",
   isAuthenticated,
-  inventoryControl.edit
+  inventoryControl.editData
 );
 inventoryRoute.get(
   "/api/owner/inventory",

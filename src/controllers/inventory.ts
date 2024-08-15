@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-import { InventoryAdd, InventoryEdit } from "../types/requestBody/inventory";
+import { editBarang, InventoryAdd } from "../types/requestBody/inventory";
 import { CustomReq } from "../types/expressTypes";
 import InventoryValidation from "../validation/inventory";
 import {
   addInventoryService,
-  editInventoryService,
   getByKodeProdukInventory,
   deleteProductByIdProduct,
   getProductsByOwner,
+  editDataBarang,
 } from "../services/inventory";
 import { isValidObjectId } from "mongoose";
 import ResponseErr from "../middlewares/responseError";
@@ -47,17 +47,17 @@ const inventoryControl = {
       return res.status(400).json({ message: error });
     }
   },
-  async edit(req: Request, res: Response, next: NextFunction) {
+  async editData(req: Request, res: Response, next: NextFunction) {
     try {
       const customReq: CustomReq = req as CustomReq;
       if (!isValidObjectId(customReq.params.id)) {
         throw new ResponseErr("Invalid parameter", 400);
       }
 
-      const body: InventoryEdit = customReq.body;
+      const body: editBarang = customReq.body;
       await InventoryValidation.edit(body);
 
-      const result = await editInventoryService(
+      const result = await editDataBarang(
         body,
         customReq._id,
         customReq.params.id

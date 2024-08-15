@@ -50,7 +50,7 @@ const inventoryControl = {
             }
         });
     },
-    edit(req, res, next) {
+    editData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const customReq = req;
@@ -59,7 +59,7 @@ const inventoryControl = {
                 }
                 const body = customReq.body;
                 yield inventory_1.default.edit(body);
-                const result = yield (0, inventory_2.editInventoryService)(body, customReq._id, customReq.params.id);
+                const result = yield (0, inventory_2.editDataBarang)(body, customReq._id, customReq.params.id);
                 if (result.modifiedCount === 0) {
                     throw new responseError_1.default("Inventory not found", 404);
                 }
