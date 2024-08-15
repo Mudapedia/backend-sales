@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import OwnerCol from "../models/owner";
-import { InventoryAdd, InventoryEdit } from "../types/requestBody/inventory";
+import { editBarang, InventoryAdd } from "../types/requestBody/inventory";
 import { DataSales } from "../types/requestBody/sales";
 
 export const getProductsByOwner = (id: string) => {
@@ -31,8 +31,8 @@ export const addInventoryService = (body: InventoryAdd, id: string) => {
   );
 };
 
-export const editInventoryService = (
-  body: InventoryEdit,
+export const editDataBarang = (
+  body: editBarang,
   id: string,
   idInventory: string
 ) => {
@@ -41,12 +41,28 @@ export const editInventoryService = (
     {
       $set: {
         "inventory.$.nama_produk": body.nama_produk,
-        "inventory.$.qty_gudang": body.qty_gudang,
-        "inventory.$.qty_sales": body.qty_sales,
+        "inventory.$.kode_produk": body.kode_produk,
       },
     }
   );
 };
+
+// export const editInventoryService = (
+//   body: InventoryEdit,
+//   id: string,
+//   idInventory: string
+// ) => {
+//   return OwnerCol.updateOne(
+//     { _id: id, "inventory._id": idInventory },
+//     {
+//       $set: {
+//         "inventory.$.nama_produk": body.nama_produk,
+//         "inventory.$.qty_gudang": body.qty_gudang,
+//         "inventory.$.qty_sales": body.qty_sales,
+//       },
+//     }
+//   );
+// };
 
 export const getByKodeProdukInventory = (id: string, kodeProduk: string) => {
   return OwnerCol.aggregate([

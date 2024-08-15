@@ -15,9 +15,8 @@ class Schema {
     }
     static get schemaInventoryEdit() {
         return joi_1.default.object({
+            kode_produk: joi_1.default.string().trim().required(),
             nama_produk: joi_1.default.string().trim().required(),
-            qty_gudang: joi_1.default.number().required(),
-            qty_sales: joi_1.default.number().required(),
         });
     }
 }

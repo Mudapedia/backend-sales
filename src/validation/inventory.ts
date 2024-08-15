@@ -13,9 +13,8 @@ class Schema {
 
   protected static get schemaInventoryEdit() {
     return Joi.object({
+      kode_produk: Joi.string().trim().required(),
       nama_produk: Joi.string().trim().required(),
-      qty_gudang: Joi.number().required(),
-      qty_sales: Joi.number().required(),
     });
   }
 }

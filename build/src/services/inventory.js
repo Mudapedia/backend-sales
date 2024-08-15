@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getManyInventory = exports.getByIdInventory = exports.getByKodeProdukInventory = exports.editInventoryService = exports.addInventoryService = exports.deleteProductByIdProduct = exports.getProductsByOwner = void 0;
+exports.getManyInventory = exports.getByIdInventory = exports.getByKodeProdukInventory = exports.editDataBarang = exports.addInventoryService = exports.deleteProductByIdProduct = exports.getProductsByOwner = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const owner_1 = __importDefault(require("../models/owner"));
 const getProductsByOwner = (id) => {
@@ -28,16 +28,15 @@ const addInventoryService = (body, id) => {
     });
 };
 exports.addInventoryService = addInventoryService;
-const editInventoryService = (body, id, idInventory) => {
+const editDataBarang = (body, id, idInventory) => {
     return owner_1.default.updateOne({ _id: id, "inventory._id": idInventory }, {
         $set: {
             "inventory.$.nama_produk": body.nama_produk,
-            "inventory.$.qty_gudang": body.qty_gudang,
-            "inventory.$.qty_sales": body.qty_sales,
+            "inventory.$.kode_produk": body.kode_produk,
         },
     });
 };
-exports.editInventoryService = editInventoryService;
+exports.editDataBarang = editDataBarang;
 const getByKodeProdukInventory = (id, kodeProduk) => {
     return owner_1.default.aggregate([
         {
