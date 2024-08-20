@@ -1,5 +1,9 @@
 import Joi from "joi";
-import { LoginOwner, RegisterOwner } from "../types/requestBody/auth";
+import {
+  LoginOwner,
+  RegisterOwner,
+  RegisterSales,
+} from "../types/requestBody/auth";
 
 class Schema {
   protected static get schemaRegisterOwner() {
@@ -15,6 +19,15 @@ class Schema {
       password: Joi.string().trim().required(),
     });
   }
+  protected static get schemaCreateSalesAccount() {
+    return Joi.object({
+      username: Joi.string().trim().required(),
+      nama: Joi.string().trim().required(),
+      noHP: Joi.string().trim().required(),
+      alamat: Joi.string().trim().required(),
+      password: Joi.string().trim().required(),
+    });
+  }
 }
 
 class AuthValidation extends Schema {
@@ -25,6 +38,11 @@ class AuthValidation extends Schema {
   }
   static loginOwner(body: LoginOwner) {
     return this.schemaLoginOwner.validateAsync(body, {
+      abortEarly: false,
+    });
+  }
+  static createSalesAccount(body: RegisterSales) {
+    return this.schemaCreateSalesAccount.validateAsync(body, {
       abortEarly: false,
     });
   }
