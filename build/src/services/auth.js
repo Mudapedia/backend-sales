@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDetailById = exports.getByIdSales = exports.getById = exports.getByToken = exports.getByEmail = exports.registerOwner = void 0;
+exports.getSalesByUsername = exports.addSalesAccount = exports.getDetailById = exports.getByIdSales = exports.getById = exports.getByToken = exports.getByEmail = exports.registerOwner = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const owner_1 = __importDefault(require("../models/owner"));
 const registerOwner = (body) => __awaiter(void 0, void 0, void 0, function* () {
@@ -68,3 +68,38 @@ const getDetailById = (id) => {
     ]);
 };
 exports.getDetailById = getDetailById;
+const addSalesAccount = (body, id) => __awaiter(void 0, void 0, void 0, function* () {
+    return owner_1.default.updateOne({ _id: id }, {
+        $push: {
+            sales: body,
+        },
+    });
+});
+exports.addSalesAccount = addSalesAccount;
+const getSalesByUsername = (username, id) => __awaiter(void 0, void 0, void 0, function* () {
+    return owner_1.default.aggregate([
+        {
+            $match: {
+                _id: new mongoose_1.default.Types.ObjectId(id),
+            },
+        },
+        {
+            $unwind: "$sales",
+        },
+        {
+            $match: {
+                "sales.username": username,
+            },
+        },
+        {
+            $project: {
+                _id: "$sales._id",
+                username: "$sales.username",
+                nama: "$sales.nama",
+                noHP: "$sales.noHP",
+                alamat: "$sales.alamat",
+            },
+        },
+    ]);
+});
+exports.getSalesByUsername = getSalesByUsername;

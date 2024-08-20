@@ -26,6 +26,7 @@ const salesSchema = new mongoose_1.default.Schema({
     username: {
         type: String,
         required: true,
+        unique: true,
     },
     noHP: {
         type: String,
@@ -35,19 +36,17 @@ const salesSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
-    authentication: {
-        password: {
-            type: String,
-            required: true,
-        },
-        salt: {
-            type: String,
-            required: true,
-        },
-        token: {
-            type: String,
-            default: null,
-        },
+    password: {
+        type: String,
+        required: true,
+    },
+    salt: {
+        type: String,
+        required: true,
+    },
+    token: {
+        type: String,
+        default: null,
     },
     inventory: [schemaInventorySales],
 }, {
