@@ -18,6 +18,15 @@ class Schema {
             password: joi_1.default.string().trim().required(),
         });
     }
+    static get schemaCreateSalesAccount() {
+        return joi_1.default.object({
+            username: joi_1.default.string().trim().required(),
+            nama: joi_1.default.string().trim().required(),
+            noHP: joi_1.default.string().trim().required(),
+            alamat: joi_1.default.string().trim().required(),
+            password: joi_1.default.string().trim().required(),
+        });
+    }
 }
 class AuthValidation extends Schema {
     static registerOwner(body) {
@@ -27,6 +36,11 @@ class AuthValidation extends Schema {
     }
     static loginOwner(body) {
         return this.schemaLoginOwner.validateAsync(body, {
+            abortEarly: false,
+        });
+    }
+    static createSalesAccount(body) {
+        return this.schemaCreateSalesAccount.validateAsync(body, {
             abortEarly: false,
         });
     }

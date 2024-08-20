@@ -64,7 +64,6 @@ const authControl = {
                 const salt = (0, salt_1.default)();
                 const token = (0, encription_1.default)(salt, user._id, process.env.SECRET_KEY);
                 user.authentication.token = token;
-                console.log("masuk login");
                 yield user.save();
                 const tokenJWT = jsonwebtoken_1.default.sign({ _id: user._id, token: token }, process.env.SECRET_KEY, {
                     expiresIn: "1d",
@@ -72,6 +71,33 @@ const authControl = {
                 return res
                     .status(200)
                     .json({ message: "Login berhasil", token: tokenJWT });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    },
+    createSalesAccount(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const customReq = req;
+                const body = customReq.body;
+                yield auth_1.default.createSalesAccount(body);
+                const cekSales = yield (0, auth_2.getSalesByUsername)(body.username, customReq._id);
+                if (Array.isArray(cekSales) && cekSales.length > 0) {
+                    throw new responseError_1.default("Username sales sudah terdaftar", 400);
+                }
+                if (!process.env.SECRET_KEY) {
+                    throw new Error("env error");
+                }
+                const salt = (0, salt_1.default)();
+                body.password = (0, encription_1.default)(salt, body.password, process.env.SECRET_KEY);
+                body.salt = salt;
+                const response = yield (0, auth_2.addSalesAccount)(body, customReq._id);
+                if (response.modifiedCount === 0) {
+                    throw new responseError_1.default("Gagal register user", 400);
+                }
+                res.status(200).json({ message: "berhasil membuat akun sales." });
             }
             catch (error) {
                 next(error);
