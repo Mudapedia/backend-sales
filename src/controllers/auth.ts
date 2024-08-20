@@ -4,10 +4,16 @@ import {
   LoginOwner,
   LoginSales,
   RegisterOwner,
+  RegisterSales,
 } from "../types/requestBody/auth";
 import AuthValidation from "../validation/auth";
 import random from "../helpers/salt";
-import { getByEmail, registerOwner } from "../services/auth";
+import {
+  addSalesAccount,
+  getByEmail,
+  getSalesByUsername,
+  registerOwner,
+} from "../services/auth";
 import encription from "../helpers/encription";
 import jwt from "jsonwebtoken";
 import { CustomReq } from "../types/expressTypes";
@@ -75,7 +81,6 @@ const authControl = {
       const salt = random();
       const token = encription(salt, user._id, process.env.SECRET_KEY);
       user.authentication.token = token;
-      console.log("masuk login");
       await user.save();
 
       const tokenJWT = jwt.sign(
@@ -89,6 +94,37 @@ const authControl = {
       return res
         .status(200)
         .json({ message: "Login berhasil", token: tokenJWT });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async createSalesAccount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const customReq: CustomReq = req as CustomReq;
+      const body: RegisterSales = customReq.body;
+      await AuthValidation.createSalesAccount(body);
+
+      const cekSales = await getSalesByUsername(body.username, customReq._id);
+
+      if (Array.isArray(cekSales) && cekSales.length > 0) {
+        throw new ResponseErr("Username sales sudah terdaftar", 400);
+      }
+
+      if (!process.env.SECRET_KEY) {
+        throw new Error("env error");
+      }
+
+      const salt: string = random();
+      body.password = encription(salt, body.password, process.env.SECRET_KEY);
+      body.salt = salt;
+
+      const response = await addSalesAccount(body, customReq._id);
+      if (response.modifiedCount === 0) {
+        throw new ResponseErr("Gagal register user", 400);
+      }
+
+      res.status(200).json({ message: "berhasil membuat akun sales." });
     } catch (error) {
       next(error);
     }

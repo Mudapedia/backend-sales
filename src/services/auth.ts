@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import OwnerCol from "../models/owner";
-import { RegisterOwner } from "../types/requestBody/auth";
+import { RegisterOwner, RegisterSales } from "../types/requestBody/auth";
 
 export const registerOwner = async (body: RegisterOwner) => {
   const insert = new OwnerCol({
@@ -50,6 +50,44 @@ export const getDetailById = (id: string) => {
         email: 1,
         createdAt: 1,
         updatedAt: 1,
+      },
+    },
+  ]);
+};
+
+export const addSalesAccount = async (body: RegisterSales, id: string) => {
+  return OwnerCol.updateOne(
+    { _id: id },
+    {
+      $push: {
+        sales: body,
+      },
+    }
+  );
+};
+
+export const getSalesByUsername = async (username: string, id: string) => {
+  return OwnerCol.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $unwind: "$sales",
+    },
+    {
+      $match: {
+        "sales.username": username,
+      },
+    },
+    {
+      $project: {
+        _id: "$sales._id",
+        username: "$sales.username",
+        nama: "$sales.nama",
+        noHP: "$sales.noHP",
+        alamat: "$sales.alamat",
       },
     },
   ]);
