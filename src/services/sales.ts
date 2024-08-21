@@ -112,6 +112,10 @@ export const editSalesService = (
 export const getAllSalesService = (id: string) => {
   return OwnerCol.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(id) } },
+    { $unwind: "$sales" },
+    {
+      $match: { "sales.isDeleted": false },
+    },
     {
       $project: {
         sales: {
@@ -126,4 +130,18 @@ export const getAllSalesService = (id: string) => {
       },
     },
   ]);
+};
+
+export const deleteSalesService = (id: string, idSales: string) => {
+  return OwnerCol.updateOne(
+    {
+      _id: new mongoose.Types.ObjectId(id),
+      "sales._id": idSales,
+    },
+    {
+      $set: {
+        "sales.$.isDeleted": true,
+      },
+    }
+  );
 };

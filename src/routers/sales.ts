@@ -13,7 +13,11 @@ salesRoute.post(
   authControl.createSalesAccount
 );
 salesRoute.get("/api/owner/sales", isAuthenticated, salesControl.getAllSales);
-
+salesRoute.delete(
+  "/api/owner/sales/:id",
+  isAuthenticated,
+  salesControl.deleteSalesAccount
+);
 salesRoute.post("/api/sales/login", authControl.loginSales);
 // salesRoute.post("/api/sales/inventory", isAuthenticated, inventorySales.add);
 salesRoute.get(
