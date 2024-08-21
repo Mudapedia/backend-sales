@@ -29,38 +29,6 @@ const ownerControl = {
     }
   },
 
-  async registerSales(req: Request, res: Response, next: NextFunction) {
-    try {
-      const customReq: CustomReq = req as CustomReq;
-      const body: RegisterSales = customReq.body;
-
-      await SalesValidation.register(body);
-
-      const check = await searchSalesByUsernameService(
-        customReq._id,
-        body.username
-      );
-
-      if (check.length) {
-        throw new ResponseErr("Username sales sudah ada", 400);
-      }
-      if (!process.env.SECRET_KEY) {
-        throw new Error("env error");
-      }
-
-      const salt: string = random();
-
-      body.password = encription(salt, body.password, process.env.SECRET_KEY);
-      body.salt = salt;
-
-      await registerSalesService(customReq._id, body);
-
-      res.status(201).json({ message: "Register sales berhasil" });
-    } catch (error) {
-      next(error);
-    }
-  },
-
   async editSales(req: Request, res: Response, next: NextFunction) {
     try {
       const customReq: CustomReq = req as CustomReq;

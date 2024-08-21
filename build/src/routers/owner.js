@@ -11,6 +11,5 @@ const ownerRoute = express_1.default.Router();
 ownerRoute.get("/api/owner", isAuthenticated_1.default, owner_1.default.get);
 ownerRoute.post("/api/owner/register", auth_1.default.registerOwner);
 ownerRoute.post("/api/owner/login", auth_1.default.loginOwner);
-ownerRoute.post("/api/owner/register/sales", isAuthenticated_1.default, owner_1.default.registerSales);
 ownerRoute.put("/api/owner/sales/:id", isAuthenticated_1.default, owner_1.default.editSales);
 exports.default = ownerRoute;
