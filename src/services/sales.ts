@@ -115,12 +115,13 @@ export const getAllSalesService = (id: string) => {
     {
       $project: {
         sales: {
+          _id: 1,
           nama: 1,
           username: 1,
           noHP: 1,
           alamat: 1,
           createdAt: 1,
-          editedAt: 1,
+          updatedAt: 1,
         },
       },
     },
