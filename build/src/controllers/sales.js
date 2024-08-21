@@ -9,11 +9,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const sales_1 = require("../services/sales");
 const salesControl = {
     getAllInventoryOwner(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 res.status(200).json({ message: "Semua inventory owner", data: [] });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    },
+    getAllSales(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const customReq = req;
+                const data = yield (0, sales_1.getAllSalesService)(customReq._id);
+                res.status(200).json({ data });
             }
             catch (error) {
                 next(error);

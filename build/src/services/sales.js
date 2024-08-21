@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.editSalesService = exports.searchSalesByIdService = exports.editPasswordAndSaltSalesService = exports.searchSalesByUsernameLoginService = exports.searchSalesByUsernameService = void 0;
+exports.getAllSalesService = exports.editSalesService = exports.searchSalesByIdService = exports.editPasswordAndSaltSalesService = exports.searchSalesByUsernameLoginService = exports.searchSalesByUsernameService = void 0;
 const owner_1 = __importDefault(require("../models/owner"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const searchSalesByUsernameService = (id, username) => {
@@ -99,3 +99,21 @@ const editSalesService = (id, idSales, body) => {
     });
 };
 exports.editSalesService = editSalesService;
+const getAllSalesService = (id) => {
+    return owner_1.default.aggregate([
+        { $match: { _id: new mongoose_1.default.Types.ObjectId(id) } },
+        {
+            $project: {
+                sales: {
+                    nama: 1,
+                    username: 1,
+                    noHP: 1,
+                    alamat: 1,
+                    createdAt: 1,
+                    editedAt: 1,
+                },
+            },
+        },
+    ]);
+};
+exports.getAllSalesService = getAllSalesService;
