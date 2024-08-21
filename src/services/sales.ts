@@ -112,3 +112,21 @@ export const editSalesService = (
     }
   );
 };
+
+export const getAllSalesService = (id: string) => {
+  return OwnerCol.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(id) } },
+    {
+      $project: {
+        sales: {
+          nama: 1,
+          username: 1,
+          noHP: 1,
+          alamat: 1,
+          createdAt: 1,
+          editedAt: 1,
+        },
+      },
+    },
+  ]);
+};

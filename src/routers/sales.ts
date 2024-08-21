@@ -7,12 +7,14 @@ import salesControl from "../controllers/sales";
 
 const salesRoute: express.Router = express.Router();
 
-salesRoute.post("/api/sales/login", authControl.loginSales);
 salesRoute.post(
   "/api/owner/sales",
   isAuthenticated,
   authControl.createSalesAccount
 );
+salesRoute.get("/api/owner/sales", isAuthenticated, salesControl.getAllSales);
+
+salesRoute.post("/api/sales/login", authControl.loginSales);
 // salesRoute.post("/api/sales/inventory", isAuthenticated, inventorySales.add);
 salesRoute.get(
   "/api/sales/inventory/owner",
