@@ -22,6 +22,7 @@ import {
   editPasswordAndSaltSalesService,
   searchSalesByUsernameLoginService,
 } from "../services/sales";
+import { registerSalesService } from "../services/owner";
 
 const authControl = {
   async registerOwner(req: Request, res: Response, next: NextFunction) {
@@ -132,61 +133,54 @@ const authControl = {
 
   async loginSales(req: Request, res: Response, next: NextFunction) {
     try {
-      const customReq: CustomReq = req as CustomReq;
       const body: LoginSales = req.body;
       await SalesValidation.login(body);
 
-      const user: any = await searchSalesByUsernameLoginService(
-        customReq._id,
-        body.username
+      const user: any = await searchSalesByUsernameLoginService(body.username);
+
+      if (!user.length) {
+        throw new ResponseErr("Periksa username atau password anda", 400);
+      }
+
+      if (!process.env.SECRET_KEY) {
+        throw new Error("Invalid env");
+      }
+
+      const expectedHash = encription(
+        user[0].sales.salt,
+        body.password,
+        process.env.SECRET_KEY
       );
 
-      console.log(user);
+      if (user[0].sales.password !== expectedHash) {
+        throw new ResponseErr("Periksa username atau password anda", 400);
+      }
 
-      // if (!user.length) {
-      //   throw new ResponseErr("Periksa username atau password anda", 400);
-      // }
+      const salt = random();
+      const hashPassword = encription(
+        salt,
+        body.password,
+        process.env.SECRET_KEY
+      );
 
-      // if (!process.env.SECRET_KEY) {
-      //   throw new Error("Invalid env");
-      // }
+      const token = encription(salt, user._id, process.env.SECRET_KEY);
 
-      // const expectedHash = encription(
-      //   user[0].sales.salt,
-      //   body.password,
-      //   process.env.SECRET_KEY
-      // );
+      const tokenJWT = jwt.sign(
+        { _id: user._id, token: token },
+        process.env.SECRET_KEY,
+        {
+          expiresIn: "1d",
+        }
+      );
+      await editPasswordAndSaltSalesService(
+        user[0].sales._id,
+        hashPassword,
+        salt
+      );
 
-      // if (user[0].sales.password !== expectedHash) {
-      //   throw new ResponseErr("Periksa username atau password anda", 400);
-      // }
-
-      // const salt = random();
-      // const hashPassword = encription(
-      //   salt,
-      //   body.password,
-      //   process.env.SECRET_KEY
-      // );
-
-      //  const token = encription(salt, user._id, process.env.SECRET_KEY);
-      //  user.authentication.token = token;
-      //  await user.save();
-
-      //  const tokenJWT = jwt.sign(
-      //    { _id: user._id, token: token },
-      //    process.env.SECRET_KEY,
-      //    {
-      //      expiresIn: "1d",
-      //    }
-      //  );
-      // await editPasswordAndSaltSalesService(
-      //   customReq._id,
-      //   user[0].sales._id,
-      //   hashPassword,
-      //   salt
-      // );
-
-      res.status(200).json({ message: "Login sales berhasil" });
+      res
+        .status(200)
+        .json({ message: "Login sales berhasil", token: tokenJWT });
     } catch (error) {
       next(error);
     }

@@ -15,9 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../services/auth");
 const responseError_1 = __importDefault(require("../middlewares/responseError"));
 const sales_1 = __importDefault(require("../validation/sales"));
-const owner_1 = require("../services/owner");
-const salt_1 = __importDefault(require("../helpers/salt"));
-const encription_1 = __importDefault(require("../helpers/encription"));
 const sales_2 = require("../services/sales");
 const mongoose_1 = require("mongoose");
 const ownerControl = {
@@ -30,30 +27,6 @@ const ownerControl = {
                     throw new responseError_1.default("User tidak ditemukan.", 400);
                 }
                 return res.status(200).json(user).end();
-            }
-            catch (error) {
-                next(error);
-            }
-        });
-    },
-    registerSales(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const customReq = req;
-                const body = customReq.body;
-                yield sales_1.default.register(body);
-                const check = yield (0, sales_2.searchSalesByUsernameService)(customReq._id, body.username);
-                if (check.length) {
-                    throw new responseError_1.default("Username sales sudah ada", 400);
-                }
-                if (!process.env.SECRET_KEY) {
-                    throw new Error("env error");
-                }
-                const salt = (0, salt_1.default)();
-                body.password = (0, encription_1.default)(salt, body.password, process.env.SECRET_KEY);
-                body.salt = salt;
-                yield (0, owner_1.registerSalesService)(customReq._id, body);
-                res.status(201).json({ message: "Register sales berhasil" });
             }
             catch (error) {
                 next(error);

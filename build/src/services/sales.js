@@ -32,7 +32,7 @@ const searchSalesByUsernameService = (id, username) => {
     ]);
 };
 exports.searchSalesByUsernameService = searchSalesByUsernameService;
-const searchSalesByUsernameLoginService = (id, username) => {
+const searchSalesByUsernameLoginService = (username) => {
     return owner_1.default.aggregate([
         {
             $unwind: "$sales",
@@ -53,8 +53,8 @@ const searchSalesByUsernameLoginService = (id, username) => {
     ]);
 };
 exports.searchSalesByUsernameLoginService = searchSalesByUsernameLoginService;
-const editPasswordAndSaltSalesService = (id, idSales, password, salt) => {
-    return owner_1.default.updateOne({ _id: id, "sales._id": idSales }, {
+const editPasswordAndSaltSalesService = (idSales, password, salt) => {
+    return owner_1.default.updateOne({ "sales._id": idSales }, {
         $set: {
             "sales.$.password": password,
             "sales.$.salt": salt,
@@ -105,12 +105,13 @@ const getAllSalesService = (id) => {
         {
             $project: {
                 sales: {
+                    _id: 1,
                     nama: 1,
                     username: 1,
                     noHP: 1,
                     alamat: 1,
                     createdAt: 1,
-                    editedAt: 1,
+                    updatedAt: 1,
                 },
             },
         },

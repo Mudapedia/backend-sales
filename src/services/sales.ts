@@ -28,10 +28,7 @@ export const searchSalesByUsernameService = (id: string, username: string) => {
   ]);
 };
 
-export const searchSalesByUsernameLoginService = (
-  id: string,
-  username: string
-) => {
+export const searchSalesByUsernameLoginService = (username: string) => {
   return OwnerCol.aggregate([
     {
       $unwind: "$sales",
@@ -53,13 +50,12 @@ export const searchSalesByUsernameLoginService = (
 };
 
 export const editPasswordAndSaltSalesService = (
-  id: string,
   idSales: string,
   password: string,
   salt: string
 ) => {
   return OwnerCol.updateOne(
-    { _id: id, "sales._id": idSales },
+    { "sales._id": idSales },
     {
       $set: {
         "sales.$.password": password,
@@ -119,12 +115,13 @@ export const getAllSalesService = (id: string) => {
     {
       $project: {
         sales: {
+          _id: 1,
           nama: 1,
           username: 1,
           noHP: 1,
           alamat: 1,
           createdAt: 1,
-          editedAt: 1,
+          updatedAt: 1,
         },
       },
     },

@@ -107,12 +107,29 @@ const authControl = {
     loginSales(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const customReq = req;
                 const body = req.body;
                 yield sales_1.default.login(body);
-                const user = yield (0, sales_2.searchSalesByUsernameLoginService)(customReq._id, body.username);
-                console.log(user);
-                res.status(200).json({ message: "Login sales berhasil" });
+                const user = yield (0, sales_2.searchSalesByUsernameLoginService)(body.username);
+                if (!user.length) {
+                    throw new responseError_1.default("Periksa username atau password anda", 400);
+                }
+                if (!process.env.SECRET_KEY) {
+                    throw new Error("Invalid env");
+                }
+                const expectedHash = (0, encription_1.default)(user[0].sales.salt, body.password, process.env.SECRET_KEY);
+                if (user[0].sales.password !== expectedHash) {
+                    throw new responseError_1.default("Periksa username atau password anda", 400);
+                }
+                const salt = (0, salt_1.default)();
+                const hashPassword = (0, encription_1.default)(salt, body.password, process.env.SECRET_KEY);
+                const token = (0, encription_1.default)(salt, user._id, process.env.SECRET_KEY);
+                const tokenJWT = jsonwebtoken_1.default.sign({ _id: user._id, token: token }, process.env.SECRET_KEY, {
+                    expiresIn: "1d",
+                });
+                yield (0, sales_2.editPasswordAndSaltSalesService)(user[0].sales._id, hashPassword, salt);
+                res
+                    .status(200)
+                    .json({ message: "Login sales berhasil", token: tokenJWT });
             }
             catch (error) {
                 next(error);
