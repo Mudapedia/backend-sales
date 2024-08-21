@@ -46,6 +46,10 @@ const salesSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
     inventory: [schemaInventorySales],
   },
   {

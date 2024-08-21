@@ -48,6 +48,10 @@ const salesSchema = new mongoose_1.default.Schema({
         type: String,
         default: null,
     },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
     inventory: [schemaInventorySales],
 }, {
     timestamps: true,

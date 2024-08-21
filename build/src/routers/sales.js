@@ -11,6 +11,7 @@ const sales_1 = __importDefault(require("../controllers/sales"));
 const salesRoute = express_1.default.Router();
 salesRoute.post("/api/owner/sales", isAuthenticated_1.default, auth_1.default.createSalesAccount);
 salesRoute.get("/api/owner/sales", isAuthenticated_1.default, sales_1.default.getAllSales);
+salesRoute.delete("/api/owner/sales/:id", isAuthenticated_1.default, sales_1.default.deleteSalesAccount);
 salesRoute.post("/api/sales/login", auth_1.default.loginSales);
 salesRoute.get("/api/sales/inventory/owner", isAuthenticatedSales_1.default, sales_1.default.getAllInventoryOwner);
 exports.default = salesRoute;

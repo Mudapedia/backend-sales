@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllSalesService = exports.editSalesService = exports.searchSalesByIdService = exports.editPasswordAndSaltSalesService = exports.searchSalesByUsernameLoginService = exports.searchSalesByUsernameService = void 0;
+exports.deleteSalesService = exports.getAllSalesService = exports.editSalesService = exports.searchSalesByIdService = exports.editPasswordAndSaltSalesService = exports.searchSalesByUsernameLoginService = exports.searchSalesByUsernameService = void 0;
 const owner_1 = __importDefault(require("../models/owner"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const searchSalesByUsernameService = (id, username) => {
@@ -102,6 +102,10 @@ exports.editSalesService = editSalesService;
 const getAllSalesService = (id) => {
     return owner_1.default.aggregate([
         { $match: { _id: new mongoose_1.default.Types.ObjectId(id) } },
+        { $unwind: "$sales" },
+        {
+            $match: { "sales.isDeleted": false },
+        },
         {
             $project: {
                 sales: {
@@ -118,3 +122,14 @@ const getAllSalesService = (id) => {
     ]);
 };
 exports.getAllSalesService = getAllSalesService;
+const deleteSalesService = (id, idSales) => {
+    return owner_1.default.updateOne({
+        _id: new mongoose_1.default.Types.ObjectId(id),
+        "sales._id": idSales,
+    }, {
+        $set: {
+            "sales.$.isDeleted": true,
+        },
+    });
+};
+exports.deleteSalesService = deleteSalesService;
