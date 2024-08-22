@@ -16,5 +16,10 @@ ownerRoute.post(
   isAuthenticated,
   ownerControl.addInventorySales
 );
+ownerRoute.post(
+  "/api/owner/shipping/sales/:idSales",
+  isAuthenticated,
+  ownerControl.shipping
+);
 
 export default ownerRoute;

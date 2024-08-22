@@ -6,12 +6,19 @@ import SalesValidation from "../validation/sales";
 import {
   editSalesService,
   searchSalesByIdService,
+  searchSalesByIdShippingService,
   searchSalesByUsernameService,
 } from "../services/sales";
 import { EditSales } from "../types/requestBody/owner";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import { AddInventorySales } from "../types/requestBody/sales";
 import { insertManyInventorySales } from "../services/inventorySales";
+import { ShippingType } from "../types/requestBody/shipping";
+import {
+  ShippingEditQtyServices,
+  ShippingInsertServices,
+} from "../services/shipping";
+import ShippingValidation from "../validation/shipping";
 
 const ownerControl = {
   async get(req: Request, res: Response, next: NextFunction) {
@@ -91,6 +98,63 @@ const ownerControl = {
         .json({ message: "Berhasil menambahkan produk ke inventory sales" });
     } catch (error) {
       next(error);
+    }
+  },
+
+  async shipping(req: Request, res: Response, next: NextFunction) {
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
+      const customReq: CustomReq = req as CustomReq;
+      const body: ShippingType = customReq.body;
+      const idSales: string = customReq.params.idSales;
+      await ShippingValidation.add(body);
+
+      if (!isValidObjectId(idSales)) {
+        throw new ResponseErr("Invalid parameter", 400);
+      }
+
+      const checkSales = await searchSalesByIdShippingService(
+        customReq._id,
+        idSales
+      );
+
+      if (checkSales.length === 0) {
+        throw new ResponseErr("Sales tidak ditemukan", 400);
+      }
+
+      let query = [];
+      let inc = {};
+
+      for (let i = 0; i < body.list_barang.length; i++) {
+        query.push({
+          [`item${i + 1}._id`]: body.list_barang[i].id_produk,
+        });
+        inc = Object.assign(inc, {
+          [`inventory.$[item${i + 1}].qty_gudang`]:
+            0 - body.list_barang[i].qty_barang,
+        });
+      }
+
+      body.nama = checkSales[0].sales.nama;
+      body.alamat = checkSales[0].sales.alamat;
+      body.username = checkSales[0].sales.username;
+      body.noHP = checkSales[0].sales.noHP;
+
+      const check = await ShippingEditQtyServices(customReq._id, query, inc);
+      if (check.modifiedCount === 0) {
+        throw new ResponseErr("Modified count 0", 400);
+      }
+
+      await ShippingInsertServices(customReq._id, body);
+
+      await session.commitTransaction();
+      res.status(200).json({ message: "osadfjadsfk" });
+    } catch (error) {
+      await session.abortTransaction();
+      next(error);
+    } finally {
+      session.endSession();
     }
   },
 };

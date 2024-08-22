@@ -91,6 +91,30 @@ export const searchSalesByIdService = (id: string, idSales: string) => {
   ]);
 };
 
+export const searchSalesByIdShippingService = (id: string, idSales: string) => {
+  return OwnerCol.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $unwind: "$sales",
+    },
+    {
+      $match: {
+        "sales._id": new mongoose.Types.ObjectId(idSales),
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        sales: 1,
+      },
+    },
+  ]);
+};
+
 export const editSalesService = (
   id: string,
   idSales: string,
