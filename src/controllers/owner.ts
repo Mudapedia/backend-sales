@@ -2,11 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { getDetailById } from "../services/auth";
 import ResponseErr from "../middlewares/responseError";
 import { CustomReq } from "../types/expressTypes";
-import { RegisterSales } from "../types/requestBody/auth";
 import SalesValidation from "../validation/sales";
-import { registerSalesService } from "../services/owner";
-import random from "../helpers/salt";
-import encription from "../helpers/encription";
 import {
   editSalesService,
   searchSalesByIdService,
@@ -14,6 +10,8 @@ import {
 } from "../services/sales";
 import { EditSales } from "../types/requestBody/owner";
 import { isValidObjectId } from "mongoose";
+import { AddInventorySales } from "../types/requestBody/sales";
+import { insertManyInventorySales } from "../services/inventorySales";
 
 const ownerControl = {
   async get(req: Request, res: Response, next: NextFunction) {
@@ -60,6 +58,37 @@ const ownerControl = {
       await editSalesService(customReq._id, idSales, body);
 
       res.status(200).json({ message: "Berhasil edit sales" });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async addInventorySales(req: Request, res: Response, next: NextFunction) {
+    try {
+      const customReq: CustomReq = req as CustomReq;
+      const body: AddInventorySales = customReq.body;
+      await SalesValidation.addInventory(body);
+
+      if (!isValidObjectId(customReq.params.idSales)) {
+        throw new ResponseErr("Invalid parameter", 400);
+      }
+
+      const dataInsertmany = [];
+      for (let i = 0; i < body.data.length; i++) {
+        dataInsertmany.push({
+          kode_produk: body.data[i].kode_produk,
+          nama_produk: body.data[i].nama_produk,
+        });
+      }
+      await insertManyInventorySales(
+        customReq._id,
+        customReq.params.idSales,
+        dataInsertmany
+      );
+
+      res
+        .status(200)
+        .json({ message: "Berhasil menambahkan produk ke inventory sales" });
     } catch (error) {
       next(error);
     }

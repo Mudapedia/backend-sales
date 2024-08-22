@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 
 const schemaInventorySales = new mongoose.Schema({
+  id_produk: {
+    type: mongoose.Types.ObjectId,
+  },
   kode_produk: {
     type: String,
     required: true,
@@ -10,8 +13,9 @@ const schemaInventorySales = new mongoose.Schema({
     required: true,
   },
   qty_produk: {
-    type: String,
+    type: Number,
     required: true,
+    default: 0,
   },
 });
 

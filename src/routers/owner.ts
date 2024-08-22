@@ -10,4 +10,11 @@ ownerRoute.post("/api/owner/register", authControl.registerOwner);
 ownerRoute.post("/api/owner/login", authControl.loginOwner);
 ownerRoute.put("/api/owner/sales/:id", isAuthenticated, ownerControl.editSales);
 
+// inventory sales
+ownerRoute.post(
+  "/api/owner/sales/inventory/:idSales",
+  isAuthenticated,
+  ownerControl.addInventorySales
+);
+
 export default ownerRoute;

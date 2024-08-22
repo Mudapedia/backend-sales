@@ -36,7 +36,7 @@ class Schema {
       data: Joi.array()
         .items(
           Joi.object({
-            _id: Joi.string()
+            id_produk: Joi.string()
               .trim()
               .required()
               .custom((value, helpers) => {
@@ -47,7 +47,8 @@ class Schema {
               .messages({
                 "id.invalid": "Id invalid",
               }),
-            qty_produk: Joi.number().min(1).required(),
+            kode_produk: Joi.string().trim().required(),
+            nama_produk: Joi.string().trim().required(),
           })
         )
         .min(1)
