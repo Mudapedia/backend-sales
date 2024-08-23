@@ -34,6 +34,7 @@ class Schema {
   protected static get schemaAddInventorySales() {
     return Joi.object({
       data: Joi.array()
+        .min(1)
         .items(
           Joi.object({
             id_produk: Joi.string()
@@ -51,7 +52,6 @@ class Schema {
             nama_produk: Joi.string().trim().required(),
           })
         )
-        .min(1)
         .required(),
     });
   }

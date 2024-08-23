@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import ShippingSchema from "./shipping";
 
 const schemaInventorySales = new mongoose.Schema({
   id_produk: {
@@ -55,6 +56,7 @@ const salesSchema = new mongoose.Schema(
       default: false,
     },
     inventory: [schemaInventorySales],
+    shipping: [ShippingSchema],
   },
   {
     timestamps: true,

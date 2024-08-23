@@ -80,17 +80,10 @@ const ownerControl = {
         throw new ResponseErr("Invalid parameter", 400);
       }
 
-      const dataInsertmany = [];
-      for (let i = 0; i < body.data.length; i++) {
-        dataInsertmany.push({
-          kode_produk: body.data[i].kode_produk,
-          nama_produk: body.data[i].nama_produk,
-        });
-      }
       await insertManyInventorySales(
         customReq._id,
         customReq.params.idSales,
-        dataInsertmany
+        body.data
       );
 
       res
@@ -101,7 +94,7 @@ const ownerControl = {
     }
   },
 
-  async shipping(req: Request, res: Response, next: NextFunction) {
+  async addShipping(req: Request, res: Response, next: NextFunction) {
     const session = await mongoose.startSession();
     try {
       session.startTransaction();
@@ -112,15 +105,6 @@ const ownerControl = {
 
       if (!isValidObjectId(idSales)) {
         throw new ResponseErr("Invalid parameter", 400);
-      }
-
-      const checkSales = await searchSalesByIdShippingService(
-        customReq._id,
-        idSales
-      );
-
-      if (checkSales.length === 0) {
-        throw new ResponseErr("Sales tidak ditemukan", 400);
       }
 
       let query = [];
@@ -136,17 +120,26 @@ const ownerControl = {
         });
       }
 
-      body.nama = checkSales[0].sales.nama;
-      body.alamat = checkSales[0].sales.alamat;
-      body.username = checkSales[0].sales.username;
-      body.noHP = checkSales[0].sales.noHP;
-
-      const check = await ShippingEditQtyServices(customReq._id, query, inc);
+      const check = await ShippingEditQtyServices(
+        customReq._id,
+        query,
+        inc,
+        session
+      );
       if (check.modifiedCount === 0) {
         throw new ResponseErr("Modified count 0", 400);
       }
 
-      await ShippingInsertServices(customReq._id, body);
+      const checkInsert = await ShippingInsertServices(
+        customReq._id,
+        idSales,
+        body,
+        session
+      );
+
+      if (checkInsert.matchedCount === 0) {
+        throw new ResponseErr("Sales tidak ditemukan", 400);
+      }
 
       await session.commitTransaction();
       res.status(200).json({ message: "osadfjadsfk" });

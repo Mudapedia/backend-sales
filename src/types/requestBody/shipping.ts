@@ -6,9 +6,5 @@ interface Barang {
 }
 
 export interface ShippingType {
-  nama?: string;
-  username?: string;
-  alamat?: string;
-  noHP?: string;
   list_barang: [Barang];
 }

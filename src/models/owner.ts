@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import salesSchema from "./sales";
 import inventorySchema from "./inventory";
 import historyStok from "./historyStok";
-import ShippingSchema from "./shipping";
 
 const schemaOwner = new mongoose.Schema(
   {
@@ -33,7 +32,6 @@ const schemaOwner = new mongoose.Schema(
     sales: [salesSchema],
     inventory: [inventorySchema],
     history_stok: [historyStok],
-    shipping: [ShippingSchema],
   },
   {
     timestamps: true,
