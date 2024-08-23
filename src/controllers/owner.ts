@@ -142,7 +142,7 @@ const ownerControl = {
       }
 
       await session.commitTransaction();
-      res.status(200).json({ message: "osadfjadsfk" });
+      res.status(200).json({ message: "Shipping berhasil ditambahkan" });
     } catch (error) {
       await session.abortTransaction();
       next(error);
