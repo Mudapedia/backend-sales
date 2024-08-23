@@ -2,6 +2,7 @@ import express from "express";
 import ownerControl from "../controllers/owner";
 import authControl from "../controllers/auth";
 import isAuthenticated from "../middlewares/isAuthenticated";
+import isAuthenticatedSales from "../middlewares/isAuthenticatedSales";
 
 const ownerRoute: express.Router = express.Router();
 
@@ -20,6 +21,11 @@ ownerRoute.post(
   "/api/owner/shipping/sales/:idSales",
   isAuthenticated,
   ownerControl.addShipping
+);
+ownerRoute.get(
+  "/api/owner/shipping",
+  isAuthenticated,
+  ownerControl.getAllShipping
 );
 
 export default ownerRoute;

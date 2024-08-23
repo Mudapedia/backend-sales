@@ -1,9 +1,8 @@
 import express, { NextFunction, Request, Response } from "express";
 import ResponseErr from "./responseError";
-import { getById, getByToken } from "../services/auth";
+import { getById } from "../services/auth";
 import jwtVerify from "../helpers/jwtVerify";
 import { DecodedJwt } from "../types/authJwt";
-import { JwtPayload } from "jsonwebtoken";
 import { isValidObjectId } from "mongoose";
 import { CustomReq } from "../types/expressTypes";
 

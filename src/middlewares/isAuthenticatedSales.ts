@@ -1,11 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
 import ResponseErr from "./responseError";
-import { getById, getByIdSales, getByToken } from "../services/auth";
-import jwtVerify from "../helpers/jwtVerify";
+import { getByIdSales } from "../services/auth";
 import { DecodedJwt } from "../types/authJwt";
-import { JwtPayload } from "jsonwebtoken";
 import { isValidObjectId } from "mongoose";
 import { CustomReq } from "../types/expressTypes";
+import jwtVerify from "../helpers/jwtVerify";
 
 const isAuthenticatedSales = async (
   req: Request,
@@ -37,15 +36,15 @@ const isAuthenticatedSales = async (
 
     const user = await getByIdSales(decoded._id);
 
-    if (!user) {
+    if (!user.length) {
       throw new ResponseErr("Forbidden", 403);
     }
 
-    // if (decoded.token !== user.authentication?.token) {
-    //   throw new ResponseErr("Forbidden", 403);
-    // }
+    if (decoded.token !== user[0].sales.token) {
+      throw new ResponseErr("Forbidden", 403);
+    }
 
-    customReq._id = decoded._id;
+    customReq._idSales = decoded._id;
     next();
   } catch (error) {
     next(error);

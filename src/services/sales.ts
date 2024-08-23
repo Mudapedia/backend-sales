@@ -52,7 +52,8 @@ export const searchSalesByUsernameLoginService = (username: string) => {
 export const editPasswordAndSaltSalesService = (
   idSales: string,
   password: string,
-  salt: string
+  salt: string,
+  token: string
 ) => {
   return OwnerCol.updateOne(
     { "sales._id": idSales },
@@ -60,6 +61,7 @@ export const editPasswordAndSaltSalesService = (
       $set: {
         "sales.$.password": password,
         "sales.$.salt": salt,
+        "sales.$.token": token,
       },
     }
   );

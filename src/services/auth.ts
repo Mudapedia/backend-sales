@@ -29,8 +29,22 @@ export const getById = (id: string) => {
 export const getByIdSales = (id: string) => {
   return OwnerCol.aggregate([
     {
+      $unwind: "$sales",
+    },
+    {
       $match: {
-        _id: new mongoose.Types.ObjectId(id),
+        "sales._id": new mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $project: {
+        email: 0,
+        authentication: 0,
+        inventory: 0,
+        history_stok: 0,
+        "sales.password": 0,
+        "sales.inventory": 0,
+        "sales.shipping": 0,
       },
     },
   ]);

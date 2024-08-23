@@ -19,6 +19,7 @@ import {
   ShippingInsertServices,
 } from "../services/shipping";
 import ShippingValidation from "../validation/shipping";
+import { getAllShippingOwnerService } from "../services/owner";
 
 const ownerControl = {
   async get(req: Request, res: Response, next: NextFunction) {
@@ -148,6 +149,16 @@ const ownerControl = {
       next(error);
     } finally {
       session.endSession();
+    }
+  },
+
+  async getAllShipping(req: Request, res: Response, next: NextFunction) {
+    try {
+      const customReq: CustomReq = req as CustomReq;
+      const data = await getAllShippingOwnerService(customReq._id);
+      res.status(200).json({ message: "Semua data shipping", data });
+    } catch (error) {
+      next(error);
     }
   },
 };

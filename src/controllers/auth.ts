@@ -163,10 +163,10 @@ const authControl = {
         process.env.SECRET_KEY
       );
 
-      const token = encription(salt, user._id, process.env.SECRET_KEY);
+      const token = encription(salt, user[0].sales._id, process.env.SECRET_KEY);
 
       const tokenJWT = jwt.sign(
-        { _id: user._id, token: token },
+        { _id: user[0].sales._id, token: token },
         process.env.SECRET_KEY,
         {
           expiresIn: "1d",
@@ -175,7 +175,8 @@ const authControl = {
       await editPasswordAndSaltSalesService(
         user[0].sales._id,
         hashPassword,
-        salt
+        salt,
+        token
       );
 
       res
