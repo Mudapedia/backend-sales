@@ -12,4 +12,7 @@ ownerRoute.get("/api/owner", isAuthenticated_1.default, owner_1.default.get);
 ownerRoute.post("/api/owner/register", auth_1.default.registerOwner);
 ownerRoute.post("/api/owner/login", auth_1.default.loginOwner);
 ownerRoute.put("/api/owner/sales/:id", isAuthenticated_1.default, owner_1.default.editSales);
+ownerRoute.post("/api/owner/sales/inventory/:idSales", isAuthenticated_1.default, owner_1.default.addInventorySales);
+ownerRoute.post("/api/owner/shipping/sales/:idSales", isAuthenticated_1.default, owner_1.default.addShipping);
+ownerRoute.get("/api/owner/shipping", isAuthenticated_1.default, owner_1.default.getAllShipping);
 exports.default = ownerRoute;

@@ -33,10 +33,13 @@ const getManyInventorySales = (id, query) => {
     ]);
 };
 exports.getManyInventorySales = getManyInventorySales;
-const insertManyInventorySales = (id, data) => {
-    return owner_1.default.updateOne({ _id: new mongoose_1.default.Types.ObjectId(id) }, {
+const insertManyInventorySales = (id, idSales, data) => {
+    return owner_1.default.updateOne({
+        _id: new mongoose_1.default.Types.ObjectId(id),
+        "sales._id": new mongoose_1.default.Types.ObjectId(idSales),
+    }, {
         $push: {
-            "sales.inventory": {
+            "sales.$.inventory": {
                 $each: data,
             },
         },
