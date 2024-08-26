@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -16,7 +39,11 @@ const auth_1 = require("../services/auth");
 const responseError_1 = __importDefault(require("../middlewares/responseError"));
 const sales_1 = __importDefault(require("../validation/sales"));
 const sales_2 = require("../services/sales");
-const mongoose_1 = require("mongoose");
+const mongoose_1 = __importStar(require("mongoose"));
+const inventorySales_1 = require("../services/inventorySales");
+const shipping_1 = require("../services/shipping");
+const shipping_2 = __importDefault(require("../validation/shipping"));
+const owner_1 = require("../services/owner");
 const ownerControl = {
     get(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -55,6 +82,79 @@ const ownerControl = {
                 }
                 yield (0, sales_2.editSalesService)(customReq._id, idSales, body);
                 res.status(200).json({ message: "Berhasil edit sales" });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    },
+    addInventorySales(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const customReq = req;
+                const body = customReq.body;
+                yield sales_1.default.addInventory(body);
+                if (!(0, mongoose_1.isValidObjectId)(customReq.params.idSales)) {
+                    throw new responseError_1.default("Invalid parameter", 400);
+                }
+                yield (0, inventorySales_1.insertManyInventorySales)(customReq._id, customReq.params.idSales, body.data);
+                res
+                    .status(200)
+                    .json({ message: "Berhasil menambahkan produk ke inventory sales" });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    },
+    addShipping(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const session = yield mongoose_1.default.startSession();
+            try {
+                session.startTransaction();
+                const customReq = req;
+                const body = customReq.body;
+                const idSales = customReq.params.idSales;
+                yield shipping_2.default.add(body);
+                if (!(0, mongoose_1.isValidObjectId)(idSales)) {
+                    throw new responseError_1.default("Invalid parameter", 400);
+                }
+                let query = [];
+                let inc = {};
+                for (let i = 0; i < body.list_barang.length; i++) {
+                    query.push({
+                        [`item${i + 1}._id`]: body.list_barang[i].id_produk,
+                    });
+                    inc = Object.assign(inc, {
+                        [`inventory.$[item${i + 1}].qty_gudang`]: 0 - body.list_barang[i].qty_barang,
+                    });
+                }
+                const check = yield (0, shipping_1.ShippingEditQtyServices)(customReq._id, query, inc, session);
+                if (check.modifiedCount === 0) {
+                    throw new responseError_1.default("Modified count 0", 400);
+                }
+                const checkInsert = yield (0, shipping_1.ShippingInsertServices)(customReq._id, idSales, body, session);
+                if (checkInsert.matchedCount === 0) {
+                    throw new responseError_1.default("Sales tidak ditemukan", 400);
+                }
+                yield session.commitTransaction();
+                res.status(200).json({ message: "Shipping berhasil ditambahkan" });
+            }
+            catch (error) {
+                yield session.abortTransaction();
+                next(error);
+            }
+            finally {
+                session.endSession();
+            }
+        });
+    },
+    getAllShipping(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const customReq = req;
+                const data = yield (0, owner_1.getAllShippingOwnerService)(customReq._id);
+                res.status(200).json({ message: "Semua data shipping", data });
             }
             catch (error) {
                 next(error);

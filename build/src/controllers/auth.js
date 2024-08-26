@@ -122,11 +122,11 @@ const authControl = {
                 }
                 const salt = (0, salt_1.default)();
                 const hashPassword = (0, encription_1.default)(salt, body.password, process.env.SECRET_KEY);
-                const token = (0, encription_1.default)(salt, user._id, process.env.SECRET_KEY);
-                const tokenJWT = jsonwebtoken_1.default.sign({ _id: user._id, token: token }, process.env.SECRET_KEY, {
+                const token = (0, encription_1.default)(salt, user[0].sales._id, process.env.SECRET_KEY);
+                const tokenJWT = jsonwebtoken_1.default.sign({ _id: user[0].sales._id, token: token }, process.env.SECRET_KEY, {
                     expiresIn: "1d",
                 });
-                yield (0, sales_2.editPasswordAndSaltSalesService)(user[0].sales._id, hashPassword, salt);
+                yield (0, sales_2.editPasswordAndSaltSalesService)(user[0].sales._id, hashPassword, salt, token);
                 res
                     .status(200)
                     .json({ message: "Login sales berhasil", token: tokenJWT });

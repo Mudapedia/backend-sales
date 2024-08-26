@@ -1,7 +1,6 @@
 import express from "express";
 import isAuthenticated from "../middlewares/isAuthenticated";
 import authControl from "../controllers/auth";
-import inventorySales from "../controllers/inventorySales";
 import isAuthenticatedSales from "../middlewares/isAuthenticatedSales";
 import salesControl from "../controllers/sales";
 
@@ -19,7 +18,6 @@ salesRoute.delete(
   salesControl.deleteSalesAccount
 );
 salesRoute.post("/api/sales/login", authControl.loginSales);
-// salesRoute.post("/api/sales/inventory", isAuthenticated, inventorySales.add);
 salesRoute.get(
   "/api/sales/inventory/owner",
   isAuthenticatedSales,

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteSalesService = exports.getAllSalesService = exports.editSalesService = exports.searchSalesByIdService = exports.editPasswordAndSaltSalesService = exports.searchSalesByUsernameLoginService = exports.searchSalesByUsernameService = void 0;
+exports.deleteSalesService = exports.getAllSalesService = exports.editSalesService = exports.searchSalesByIdShippingService = exports.searchSalesByIdService = exports.editPasswordAndSaltSalesService = exports.searchSalesByUsernameLoginService = exports.searchSalesByUsernameService = void 0;
 const owner_1 = __importDefault(require("../models/owner"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const searchSalesByUsernameService = (id, username) => {
@@ -53,11 +53,12 @@ const searchSalesByUsernameLoginService = (username) => {
     ]);
 };
 exports.searchSalesByUsernameLoginService = searchSalesByUsernameLoginService;
-const editPasswordAndSaltSalesService = (idSales, password, salt) => {
+const editPasswordAndSaltSalesService = (idSales, password, salt, token) => {
     return owner_1.default.updateOne({ "sales._id": idSales }, {
         $set: {
             "sales.$.password": password,
             "sales.$.salt": salt,
+            "sales.$.token": token,
         },
     });
 };
@@ -88,6 +89,30 @@ const searchSalesByIdService = (id, idSales) => {
     ]);
 };
 exports.searchSalesByIdService = searchSalesByIdService;
+const searchSalesByIdShippingService = (id, idSales) => {
+    return owner_1.default.aggregate([
+        {
+            $match: {
+                _id: new mongoose_1.default.Types.ObjectId(id),
+            },
+        },
+        {
+            $unwind: "$sales",
+        },
+        {
+            $match: {
+                "sales._id": new mongoose_1.default.Types.ObjectId(idSales),
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                sales: 1,
+            },
+        },
+    ]);
+};
+exports.searchSalesByIdShippingService = searchSalesByIdShippingService;
 const editSalesService = (id, idSales, body) => {
     return owner_1.default.updateOne({ _id: id, "sales._id": idSales }, {
         $set: {

@@ -32,8 +32,9 @@ class Schema {
     static get schemaAddInventorySales() {
         return joi_1.default.object({
             data: joi_1.default.array()
+                .min(1)
                 .items(joi_1.default.object({
-                _id: joi_1.default.string()
+                id_produk: joi_1.default.string()
                     .trim()
                     .required()
                     .custom((value, helpers) => {
@@ -44,9 +45,9 @@ class Schema {
                     .messages({
                     "id.invalid": "Id invalid",
                 }),
-                qty_produk: joi_1.default.number().min(1).required(),
+                kode_produk: joi_1.default.string().trim().required(),
+                nama_produk: joi_1.default.string().trim().required(),
             }))
-                .min(1)
                 .required(),
         });
     }

@@ -34,13 +34,17 @@ export const getManyInventorySales = (
 
 export const insertManyInventorySales = (
   id: string,
+  idSales: string,
   data: DataSalesinsert[]
 ) => {
   return OwnerCol.updateOne(
-    { _id: new mongoose.Types.ObjectId(id) },
+    {
+      _id: new mongoose.Types.ObjectId(id),
+      "sales._id": new mongoose.Types.ObjectId(idSales),
+    },
     {
       $push: {
-        "sales.inventory": {
+        "sales.$.inventory": {
           $each: data,
         },
       },

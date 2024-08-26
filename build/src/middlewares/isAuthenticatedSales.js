@@ -14,8 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const responseError_1 = __importDefault(require("./responseError"));
 const auth_1 = require("../services/auth");
-const jwtVerify_1 = __importDefault(require("../helpers/jwtVerify"));
 const mongoose_1 = require("mongoose");
+const jwtVerify_1 = __importDefault(require("../helpers/jwtVerify"));
 const isAuthenticatedSales = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const customReq = req;
@@ -35,10 +35,13 @@ const isAuthenticatedSales = (req, res, next) => __awaiter(void 0, void 0, void 
             throw new responseError_1.default("Forbidden", 403);
         }
         const user = yield (0, auth_1.getByIdSales)(decoded._id);
-        if (!user) {
+        if (!user.length) {
             throw new responseError_1.default("Forbidden", 403);
         }
-        customReq._id = decoded._id;
+        if (decoded.token !== user[0].sales.token) {
+            throw new responseError_1.default("Forbidden", 403);
+        }
+        customReq._idSales = decoded._id;
         next();
     }
     catch (error) {

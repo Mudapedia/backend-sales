@@ -52,7 +52,8 @@ export const searchSalesByUsernameLoginService = (username: string) => {
 export const editPasswordAndSaltSalesService = (
   idSales: string,
   password: string,
-  salt: string
+  salt: string,
+  token: string
 ) => {
   return OwnerCol.updateOne(
     { "sales._id": idSales },
@@ -60,6 +61,7 @@ export const editPasswordAndSaltSalesService = (
       $set: {
         "sales.$.password": password,
         "sales.$.salt": salt,
+        "sales.$.token": token,
       },
     }
   );
@@ -85,6 +87,30 @@ export const searchSalesByIdService = (id: string, idSales: string) => {
         _id: 1,
         username: 1,
         email: 1,
+        sales: 1,
+      },
+    },
+  ]);
+};
+
+export const searchSalesByIdShippingService = (id: string, idSales: string) => {
+  return OwnerCol.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $unwind: "$sales",
+    },
+    {
+      $match: {
+        "sales._id": new mongoose.Types.ObjectId(idSales),
+      },
+    },
+    {
+      $project: {
+        _id: 1,
         sales: 1,
       },
     },

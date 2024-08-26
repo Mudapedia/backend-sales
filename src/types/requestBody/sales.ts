@@ -1,6 +1,7 @@
 export interface DataSales {
-  _id: string;
-  qty_produk: number;
+  id_produk: string;
+  kode_produk: string;
+  nama_produk: string;
 }
 
 export interface AddInventorySales {
@@ -10,5 +11,4 @@ export interface AddInventorySales {
 export interface DataSalesinsert {
   kode_produk: string;
   nama_produk: string;
-  qty_produk: number;
 }

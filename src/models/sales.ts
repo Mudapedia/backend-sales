@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
+import ShippingSchema from "./shipping";
 
 const schemaInventorySales = new mongoose.Schema({
+  id_produk: {
+    type: mongoose.Types.ObjectId,
+  },
   kode_produk: {
     type: String,
     required: true,
@@ -10,8 +14,9 @@ const schemaInventorySales = new mongoose.Schema({
     required: true,
   },
   qty_produk: {
-    type: String,
+    type: Number,
     required: true,
+    default: 0,
   },
 });
 
@@ -51,6 +56,7 @@ const salesSchema = new mongoose.Schema(
       default: false,
     },
     inventory: [schemaInventorySales],
+    shipping: [ShippingSchema],
   },
   {
     timestamps: true,

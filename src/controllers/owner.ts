@@ -2,18 +2,24 @@ import { Request, Response, NextFunction } from "express";
 import { getDetailById } from "../services/auth";
 import ResponseErr from "../middlewares/responseError";
 import { CustomReq } from "../types/expressTypes";
-import { RegisterSales } from "../types/requestBody/auth";
 import SalesValidation from "../validation/sales";
-import { registerSalesService } from "../services/owner";
-import random from "../helpers/salt";
-import encription from "../helpers/encription";
 import {
   editSalesService,
   searchSalesByIdService,
+  searchSalesByIdShippingService,
   searchSalesByUsernameService,
 } from "../services/sales";
 import { EditSales } from "../types/requestBody/owner";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
+import { AddInventorySales } from "../types/requestBody/sales";
+import { insertManyInventorySales } from "../services/inventorySales";
+import { ShippingType } from "../types/requestBody/shipping";
+import {
+  ShippingEditQtyServices,
+  ShippingInsertServices,
+} from "../services/shipping";
+import ShippingValidation from "../validation/shipping";
+import { getAllShippingOwnerService } from "../services/owner";
 
 const ownerControl = {
   async get(req: Request, res: Response, next: NextFunction) {
@@ -60,6 +66,97 @@ const ownerControl = {
       await editSalesService(customReq._id, idSales, body);
 
       res.status(200).json({ message: "Berhasil edit sales" });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async addInventorySales(req: Request, res: Response, next: NextFunction) {
+    try {
+      const customReq: CustomReq = req as CustomReq;
+      const body: AddInventorySales = customReq.body;
+      await SalesValidation.addInventory(body);
+
+      if (!isValidObjectId(customReq.params.idSales)) {
+        throw new ResponseErr("Invalid parameter", 400);
+      }
+
+      await insertManyInventorySales(
+        customReq._id,
+        customReq.params.idSales,
+        body.data
+      );
+
+      res
+        .status(200)
+        .json({ message: "Berhasil menambahkan produk ke inventory sales" });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async addShipping(req: Request, res: Response, next: NextFunction) {
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
+      const customReq: CustomReq = req as CustomReq;
+      const body: ShippingType = customReq.body;
+      const idSales: string = customReq.params.idSales;
+      await ShippingValidation.add(body);
+
+      if (!isValidObjectId(idSales)) {
+        throw new ResponseErr("Invalid parameter", 400);
+      }
+
+      let query = [];
+      let inc = {};
+
+      for (let i = 0; i < body.list_barang.length; i++) {
+        query.push({
+          [`item${i + 1}._id`]: body.list_barang[i].id_produk,
+        });
+        inc = Object.assign(inc, {
+          [`inventory.$[item${i + 1}].qty_gudang`]:
+            0 - body.list_barang[i].qty_barang,
+        });
+      }
+
+      const check = await ShippingEditQtyServices(
+        customReq._id,
+        query,
+        inc,
+        session
+      );
+      if (check.modifiedCount === 0) {
+        throw new ResponseErr("Modified count 0", 400);
+      }
+
+      const checkInsert = await ShippingInsertServices(
+        customReq._id,
+        idSales,
+        body,
+        session
+      );
+
+      if (checkInsert.matchedCount === 0) {
+        throw new ResponseErr("Sales tidak ditemukan", 400);
+      }
+
+      await session.commitTransaction();
+      res.status(200).json({ message: "Shipping berhasil ditambahkan" });
+    } catch (error) {
+      await session.abortTransaction();
+      next(error);
+    } finally {
+      session.endSession();
+    }
+  },
+
+  async getAllShipping(req: Request, res: Response, next: NextFunction) {
+    try {
+      const customReq: CustomReq = req as CustomReq;
+      const data = await getAllShippingOwnerService(customReq._id);
+      res.status(200).json({ message: "Semua data shipping", data });
     } catch (error) {
       next(error);
     }
