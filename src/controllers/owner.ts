@@ -5,12 +5,13 @@ import { CustomReq } from "../types/expressTypes";
 import SalesValidation from "../validation/sales";
 import {
   editSalesService,
+  searchAllInventorySalesById,
   searchSalesByIdService,
   searchSalesByIdShippingService,
   searchSalesByUsernameService,
 } from "../services/sales";
 import { EditSales } from "../types/requestBody/owner";
-import mongoose, { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId, mongo } from "mongoose";
 import { AddInventorySales } from "../types/requestBody/sales";
 import { insertManyInventorySales } from "../services/inventorySales";
 import { ShippingType } from "../types/requestBody/shipping";
@@ -79,6 +80,22 @@ const ownerControl = {
 
       if (!isValidObjectId(customReq.params.idSales)) {
         throw new ResponseErr("Invalid parameter", 400);
+      }
+
+      const queryAll = [];
+
+      for (let i = 0; i < body.data.length; i++) {
+        queryAll.push(new mongoose.Types.ObjectId(body.data[i].id_produk));
+      }
+
+      const checkData = await searchAllInventorySalesById(
+        customReq._id,
+        customReq.params.idSales,
+        queryAll
+      );
+
+      if (checkData.length) {
+        throw new ResponseErr("Data ada yang duplikat", 400);
       }
 
       await insertManyInventorySales(
