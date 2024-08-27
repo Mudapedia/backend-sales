@@ -1,8 +1,10 @@
 import Joi from "joi";
 import {
+  ForgotPassword,
   LoginOwner,
   RegisterOwner,
   RegisterSales,
+  ResetPassword,
 } from "../types/requestBody/auth";
 
 class Schema {
@@ -28,6 +30,18 @@ class Schema {
       password: Joi.string().trim().required(),
     });
   }
+  protected static get schemaForgotPassword() {
+    return Joi.object({
+      email: Joi.string().trim().email().required(),
+    });
+  }
+  protected static get schemaResetPassword() {
+    return Joi.object({
+      email: Joi.string().trim().email().required(),
+      otp: Joi.string().trim().required(),
+      newPassword: Joi.string().trim().min(8).required(),
+    });
+  }
 }
 
 class AuthValidation extends Schema {
@@ -43,6 +57,18 @@ class AuthValidation extends Schema {
   }
   static createSalesAccount(body: RegisterSales) {
     return this.schemaCreateSalesAccount.validateAsync(body, {
+      abortEarly: false,
+    });
+  }
+
+  static forgotPassword(body: ForgotPassword) {
+    return this.schemaForgotPassword.validateAsync(body, {
+      abortEarly: false,
+    });
+  }
+
+  static resetPassword(body: ResetPassword) {
+    return this.schemaResetPassword.validateAsync(body, {
       abortEarly: false,
     });
   }

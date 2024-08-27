@@ -28,4 +28,7 @@ ownerRoute.get(
   ownerControl.getAllShipping
 );
 
+ownerRoute.post("/api/owner/forgot-password", authControl.forgotPassword);
+ownerRoute.post("/api/owner/reset-password", authControl.resetPassword);
+
 export default ownerRoute;
