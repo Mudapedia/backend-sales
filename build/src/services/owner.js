@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllShippingOwnerService = exports.registerSalesService = void 0;
+exports.resetPasswordOwnerServices = exports.addOTPOwner = exports.getOwnerByEmail = exports.getAllShippingOwnerService = exports.registerSalesService = void 0;
 const owner_1 = __importDefault(require("../models/owner"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const registerSalesService = (id, body) => __awaiter(void 0, void 0, void 0, function* () {
@@ -55,14 +55,42 @@ const getAllShippingOwnerService = (id) => {
                 inventory: 0,
                 createdAt: 0,
                 updatedAt: 0,
+                username: 0,
                 "sales.password": 0,
                 "sales.salt": 0,
                 "sales.token": 0,
                 "sales.inventory": 0,
                 "sales.createdAt": 0,
                 "sales.updatedAt": 0,
+                "sales.noHP": 0,
+                "sales.isDeleted": 0,
+                "sales.alamat": 0,
             },
         },
     ]);
 };
 exports.getAllShippingOwnerService = getAllShippingOwnerService;
+const getOwnerByEmail = (email) => {
+    return owner_1.default.findOne({ email: email });
+};
+exports.getOwnerByEmail = getOwnerByEmail;
+const addOTPOwner = (email, otp, session) => {
+    return owner_1.default.updateOne({ email: email }, {
+        $set: {
+            "authentication.otp": otp,
+        },
+    }, {
+        session: session,
+    });
+};
+exports.addOTPOwner = addOTPOwner;
+const resetPasswordOwnerServices = (id, newPassword, salt) => {
+    return owner_1.default.updateOne({ _id: id }, {
+        $set: {
+            "authentication.password": newPassword,
+            "authentication.salt": salt,
+            "authentication.otp": null,
+        },
+    });
+};
+exports.resetPasswordOwnerServices = resetPasswordOwnerServices;

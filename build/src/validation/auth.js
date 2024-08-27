@@ -27,6 +27,18 @@ class Schema {
             password: joi_1.default.string().trim().required(),
         });
     }
+    static get schemaForgotPassword() {
+        return joi_1.default.object({
+            email: joi_1.default.string().trim().email().required(),
+        });
+    }
+    static get schemaResetPassword() {
+        return joi_1.default.object({
+            email: joi_1.default.string().trim().email().required(),
+            otp: joi_1.default.string().trim().required(),
+            newPassword: joi_1.default.string().trim().min(8).required(),
+        });
+    }
 }
 class AuthValidation extends Schema {
     static registerOwner(body) {
@@ -41,6 +53,16 @@ class AuthValidation extends Schema {
     }
     static createSalesAccount(body) {
         return this.schemaCreateSalesAccount.validateAsync(body, {
+            abortEarly: false,
+        });
+    }
+    static forgotPassword(body) {
+        return this.schemaForgotPassword.validateAsync(body, {
+            abortEarly: false,
+        });
+    }
+    static resetPassword(body) {
+        return this.schemaResetPassword.validateAsync(body, {
             abortEarly: false,
         });
     }

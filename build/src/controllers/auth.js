@@ -20,6 +20,10 @@ const encription_1 = __importDefault(require("../helpers/encription"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sales_1 = __importDefault(require("../validation/sales"));
 const sales_2 = require("../services/sales");
+const owner_1 = require("../services/owner");
+const nodemailer_1 = __importDefault(require("nodemailer"));
+const otpauth_1 = require("otpauth");
+const mongoose_1 = __importDefault(require("mongoose"));
 const authControl = {
     registerOwner(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -130,6 +134,115 @@ const authControl = {
                 res
                     .status(200)
                     .json({ message: "Login sales berhasil", token: tokenJWT });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    },
+    forgotPassword(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const session = yield mongoose_1.default.startSession();
+            try {
+                session.startTransaction();
+                const body = req.body;
+                yield auth_1.default.forgotPassword(body);
+                if (!process.env.SECRET_OTP) {
+                    throw new Error("Invalid env");
+                }
+                if (!process.env.SECRET_EMAIL) {
+                    throw new Error("Invalid env");
+                }
+                if (!process.env.SECRET_EMAIL_AUTH) {
+                    throw new Error("Invalid env");
+                }
+                yield auth_1.default.forgotPassword(body);
+                const check = yield (0, owner_1.getOwnerByEmail)(body.email);
+                if (!check) {
+                    throw new responseError_1.default("Perikasa email anda", 400);
+                }
+                const totp = new otpauth_1.TOTP({
+                    issuer: "sales-app",
+                    label: process.env.SECRET_EMAIL,
+                    algorithm: "SHA1",
+                    digits: 6,
+                    period: 600,
+                    secret: process.env.SECRET_OTP,
+                });
+                const otp = totp.generate();
+                yield (0, owner_1.addOTPOwner)(body.email, otp, session);
+                const transporter = nodemailer_1.default.createTransport({
+                    host: "smtp.gmail.com",
+                    port: 587,
+                    secure: false,
+                    auth: {
+                        user: process.env.SECRET_EMAIL,
+                        pass: process.env.SECRET_EMAIL_AUTH,
+                    },
+                    debug: true,
+                });
+                const info = yield transporter.sendMail({
+                    from: '"Bapak, aku mau nyalon😁" <muudapedia@gmail.com>',
+                    to: body.email,
+                    subject: "Kaesang",
+                    html: `<b>otp anda ${otp} berakhir dalam 10 menit</b>`,
+                });
+                yield session.commitTransaction();
+                res.status(200).json({
+                    message: "OTP sudah terkirim diemail anda",
+                    messageID: info.messageId,
+                });
+            }
+            catch (error) {
+                yield session.abortTransaction();
+                next(error);
+            }
+            finally {
+                session.endSession();
+            }
+        });
+    },
+    resetPassword(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const body = req.body;
+                yield auth_1.default.resetPassword(body);
+                if (!process.env.SECRET_OTP) {
+                    throw new Error("Invalid env");
+                }
+                if (!process.env.SECRET_EMAIL) {
+                    throw new Error("Invalid env");
+                }
+                if (!process.env.SECRET_KEY) {
+                    throw new Error("Invalid env");
+                }
+                const check = yield (0, owner_1.getOwnerByEmail)(body.email);
+                if (!check) {
+                    throw new responseError_1.default("Perikasa email anda", 400);
+                }
+                if (!((_a = check.authentication) === null || _a === void 0 ? void 0 : _a.otp)) {
+                    throw new responseError_1.default("Akses lupa password terlebih dahulu", 400);
+                }
+                const totp = new otpauth_1.TOTP({
+                    issuer: "sales-app",
+                    label: process.env.SECRET_EMAIL,
+                    algorithm: "SHA1",
+                    digits: 6,
+                    period: 600,
+                    secret: process.env.SECRET_OTP,
+                });
+                const isValid = totp.validate({
+                    token: check.authentication.otp,
+                    window: 1,
+                });
+                if (isValid === null) {
+                    throw new responseError_1.default("OTP sudah tidak berlaku", 400);
+                }
+                const salt = (0, salt_1.default)();
+                const hashPassword = (0, encription_1.default)(salt, body.newPassword, process.env.SECRET_KEY);
+                yield (0, owner_1.resetPasswordOwnerServices)(check._id, hashPassword, salt);
+                res.status(200).json({ message: "berhasil reset password" });
             }
             catch (error) {
                 next(error);

@@ -14,4 +14,5 @@ salesRoute.get("/api/owner/sales", isAuthenticated_1.default, sales_1.default.ge
 salesRoute.delete("/api/owner/sales/:id", isAuthenticated_1.default, sales_1.default.deleteSalesAccount);
 salesRoute.post("/api/sales/login", auth_1.default.loginSales);
 salesRoute.get("/api/sales/inventory/owner", isAuthenticatedSales_1.default, sales_1.default.getAllInventoryOwner);
+salesRoute.get("/api/sales/shipping");
 exports.default = salesRoute;
