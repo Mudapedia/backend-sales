@@ -28,6 +28,9 @@ const schemaOwner = new mongoose.Schema(
         type: String,
         select: false,
       },
+      otp: {
+        type: String,
+      },
     },
     sales: [salesSchema],
     inventory: [inventorySchema],

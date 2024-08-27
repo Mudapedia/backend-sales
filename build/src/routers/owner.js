@@ -15,4 +15,6 @@ ownerRoute.put("/api/owner/sales/:id", isAuthenticated_1.default, owner_1.defaul
 ownerRoute.post("/api/owner/sales/inventory/:idSales", isAuthenticated_1.default, owner_1.default.addInventorySales);
 ownerRoute.post("/api/owner/shipping/sales/:idSales", isAuthenticated_1.default, owner_1.default.addShipping);
 ownerRoute.get("/api/owner/shipping", isAuthenticated_1.default, owner_1.default.getAllShipping);
+ownerRoute.post("/api/owner/forgot-password", auth_1.default.forgotPassword);
+ownerRoute.post("/api/owner/reset-password", auth_1.default.resetPassword);
 exports.default = ownerRoute;

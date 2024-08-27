@@ -23,5 +23,6 @@ salesRoute.get(
   isAuthenticatedSales,
   salesControl.getAllInventoryOwner
 );
+salesRoute.get("/api/sales/shipping");
 
 export default salesRoute;

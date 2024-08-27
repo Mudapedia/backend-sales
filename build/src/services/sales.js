@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteSalesService = exports.getAllSalesService = exports.editSalesService = exports.searchSalesByIdShippingService = exports.searchSalesByIdService = exports.editPasswordAndSaltSalesService = exports.searchSalesByUsernameLoginService = exports.searchSalesByUsernameService = void 0;
+exports.searchAllInventorySalesById = exports.deleteSalesService = exports.getAllSalesService = exports.editSalesService = exports.searchSalesByIdShippingService = exports.searchSalesByIdService = exports.editPasswordAndSaltSalesService = exports.searchSalesByUsernameLoginService = exports.searchSalesByUsernameService = void 0;
 const owner_1 = __importDefault(require("../models/owner"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const searchSalesByUsernameService = (id, username) => {
@@ -158,3 +158,31 @@ const deleteSalesService = (id, idSales) => {
     });
 };
 exports.deleteSalesService = deleteSalesService;
+const searchAllInventorySalesById = (id, idSales, productIds) => {
+    return owner_1.default.aggregate([
+        {
+            $match: {
+                _id: new mongoose_1.default.Types.ObjectId(id),
+                "sales._id": new mongoose_1.default.Types.ObjectId(idSales),
+            },
+        },
+        {
+            $unwind: "$sales",
+        },
+        {
+            $unwind: "$sales.inventory",
+        },
+        {
+            $match: {
+                "sales.inventory.id_produk": { $in: productIds },
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                "sales.inventory": 1,
+            },
+        },
+    ]);
+};
+exports.searchAllInventorySalesById = searchAllInventorySalesById;

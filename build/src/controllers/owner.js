@@ -97,6 +97,14 @@ const ownerControl = {
                 if (!(0, mongoose_1.isValidObjectId)(customReq.params.idSales)) {
                     throw new responseError_1.default("Invalid parameter", 400);
                 }
+                const queryAll = [];
+                for (let i = 0; i < body.data.length; i++) {
+                    queryAll.push(new mongoose_1.default.Types.ObjectId(body.data[i].id_produk));
+                }
+                const checkData = yield (0, sales_2.searchAllInventorySalesById)(customReq._id, customReq.params.idSales, queryAll);
+                if (checkData.length) {
+                    throw new responseError_1.default("Data ada yang duplikat", 400);
+                }
                 yield (0, inventorySales_1.insertManyInventorySales)(customReq._id, customReq.params.idSales, body.data);
                 res
                     .status(200)

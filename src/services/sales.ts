@@ -171,3 +171,35 @@ export const deleteSalesService = (id: string, idSales: string) => {
     }
   );
 };
+
+export const searchAllInventorySalesById = (
+  id: string,
+  idSales: string,
+  productIds: mongoose.Types.ObjectId[]
+) => {
+  return OwnerCol.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+        "sales._id": new mongoose.Types.ObjectId(idSales),
+      },
+    },
+    {
+      $unwind: "$sales",
+    },
+    {
+      $unwind: "$sales.inventory",
+    },
+    {
+      $match: {
+        "sales.inventory.id_produk": { $in: productIds },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        "sales.inventory": 1,
+      },
+    },
+  ]);
+};

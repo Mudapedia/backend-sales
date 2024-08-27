@@ -31,6 +31,9 @@ const schemaOwner = new mongoose_1.default.Schema({
             type: String,
             select: false,
         },
+        otp: {
+            type: String,
+        },
     },
     sales: [sales_1.default],
     inventory: [inventory_1.default],

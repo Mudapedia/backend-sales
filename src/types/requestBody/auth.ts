@@ -23,3 +23,13 @@ export interface LoginSales {
   username: string;
   password: string;
 }
+
+export interface ForgotPassword {
+  email: string;
+}
+
+export interface ResetPassword {
+  email: string;
+  otp: string;
+  newPassword: string;
+}
