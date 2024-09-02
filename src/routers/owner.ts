@@ -30,5 +30,10 @@ ownerRoute.get(
 
 ownerRoute.post("/api/owner/forgot-password", authControl.forgotPassword);
 ownerRoute.post("/api/owner/reset-password", authControl.resetPassword);
+ownerRoute.patch(
+  "/api/owner/sales/:idSales/reset-password",
+  isAuthenticated,
+  ownerControl.resetPasswordSales
+);
 
 export default ownerRoute;

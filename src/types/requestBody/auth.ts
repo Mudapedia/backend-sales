@@ -33,3 +33,8 @@ export interface ResetPassword {
   otp: string;
   newPassword: string;
 }
+
+export interface ResetPasswordSales {
+  newPassword: string;
+  confirmPassword: string;
+}

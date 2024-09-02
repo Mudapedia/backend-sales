@@ -39,6 +39,17 @@ class Schema {
             newPassword: joi_1.default.string().trim().min(8).required(),
         });
     }
+    static get schemaResetPasswordSales() {
+        return joi_1.default.object({
+            newPassword: joi_1.default.string().trim().min(8).required(),
+            confirmPassword: joi_1.default.string()
+                .valid(joi_1.default.ref("newPassword"))
+                .required()
+                .messages({
+                "any.only": "New password and confirm password do not match",
+            }),
+        });
+    }
 }
 class AuthValidation extends Schema {
     static registerOwner(body) {
@@ -63,6 +74,11 @@ class AuthValidation extends Schema {
     }
     static resetPassword(body) {
         return this.schemaResetPassword.validateAsync(body, {
+            abortEarly: false,
+        });
+    }
+    static resetPasswordSales(body) {
+        return this.schemaResetPasswordSales.validateAsync(body, {
             abortEarly: false,
         });
     }

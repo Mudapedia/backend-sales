@@ -5,6 +5,7 @@ import {
   RegisterOwner,
   RegisterSales,
   ResetPassword,
+  ResetPasswordSales,
 } from "../types/requestBody/auth";
 
 class Schema {
@@ -42,6 +43,18 @@ class Schema {
       newPassword: Joi.string().trim().min(8).required(),
     });
   }
+
+  protected static get schemaResetPasswordSales() {
+    return Joi.object({
+      newPassword: Joi.string().trim().min(8).required(),
+      confirmPassword: Joi.string()
+        .valid(Joi.ref("newPassword"))
+        .required()
+        .messages({
+          "any.only": "New password and confirm password do not match",
+        }),
+    });
+  }
 }
 
 class AuthValidation extends Schema {
@@ -69,6 +82,11 @@ class AuthValidation extends Schema {
 
   static resetPassword(body: ResetPassword) {
     return this.schemaResetPassword.validateAsync(body, {
+      abortEarly: false,
+    });
+  }
+  static resetPasswordSales(body: ResetPasswordSales) {
+    return this.schemaResetPasswordSales.validateAsync(body, {
       abortEarly: false,
     });
   }

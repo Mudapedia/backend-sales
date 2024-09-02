@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPasswordOwnerServices = exports.addOTPOwner = exports.getOwnerByEmail = exports.getAllShippingOwnerService = exports.registerSalesService = void 0;
+exports.resetPasswordSalesServices = exports.resetPasswordOwnerServices = exports.addOTPOwner = exports.getOwnerByEmail = exports.getAllShippingOwnerService = exports.registerSalesService = void 0;
 const owner_1 = __importDefault(require("../models/owner"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const registerSalesService = (id, body) => __awaiter(void 0, void 0, void 0, function* () {
@@ -94,3 +94,16 @@ const resetPasswordOwnerServices = (id, newPassword, salt) => {
     });
 };
 exports.resetPasswordOwnerServices = resetPasswordOwnerServices;
+const resetPasswordSalesServices = (id, idSales, newPassword, salt) => {
+    return owner_1.default.updateOne({
+        _id: new mongoose_1.default.Types.ObjectId(id),
+        "sales._id": new mongoose_1.default.Types.ObjectId(idSales),
+    }, {
+        $set: {
+            "sales.$.password": newPassword,
+            "sales.$.salt": salt,
+            "sales.$.token": null,
+        },
+    });
+};
+exports.resetPasswordSalesServices = resetPasswordSalesServices;

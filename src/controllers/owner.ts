@@ -7,7 +7,6 @@ import {
   editSalesService,
   searchAllInventorySalesById,
   searchSalesByIdService,
-  searchSalesByIdShippingService,
   searchSalesByUsernameService,
 } from "../services/sales";
 import { EditSales } from "../types/requestBody/owner";
@@ -20,7 +19,14 @@ import {
   ShippingInsertServices,
 } from "../services/shipping";
 import ShippingValidation from "../validation/shipping";
-import { getAllShippingOwnerService } from "../services/owner";
+import {
+  getAllShippingOwnerService,
+  resetPasswordSalesServices,
+} from "../services/owner";
+import { ResetPasswordSales } from "../types/requestBody/auth";
+import AuthValidation from "../validation/auth";
+import random from "../helpers/salt";
+import encription from "../helpers/encription";
 
 const ownerControl = {
   async get(req: Request, res: Response, next: NextFunction) {
@@ -174,6 +180,46 @@ const ownerControl = {
       const customReq: CustomReq = req as CustomReq;
       const data = await getAllShippingOwnerService(customReq._id);
       res.status(200).json({ message: "Semua data shipping", data });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async resetPasswordSales(req: Request, res: Response, next: NextFunction) {
+    try {
+      const customReq: CustomReq = req as CustomReq;
+      const body: ResetPasswordSales = customReq.body;
+      const idSales = customReq.params.idSales;
+
+      await AuthValidation.resetPasswordSales(body);
+
+      if (!isValidObjectId(idSales)) {
+        throw new ResponseErr("Invalid parameter", 400);
+      }
+
+      if (!process.env.SECRET_KEY) {
+        throw new Error("Invalid env");
+      }
+
+      const salt = random();
+      const hashPassword = encription(
+        salt,
+        body.newPassword,
+        process.env.SECRET_KEY
+      );
+
+      const result = await resetPasswordSalesServices(
+        customReq._id,
+        idSales,
+        hashPassword,
+        salt
+      );
+
+      if (result.matchedCount === 0) {
+        throw new ResponseErr("Sales tidak ditemukan", 404);
+      }
+
+      res.status(200).json({ message: "Berhasil reset password sales" });
     } catch (error) {
       next(error);
     }
