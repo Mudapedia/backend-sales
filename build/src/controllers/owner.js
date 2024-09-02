@@ -44,6 +44,9 @@ const inventorySales_1 = require("../services/inventorySales");
 const shipping_1 = require("../services/shipping");
 const shipping_2 = __importDefault(require("../validation/shipping"));
 const owner_1 = require("../services/owner");
+const auth_2 = __importDefault(require("../validation/auth"));
+const salt_1 = __importDefault(require("../helpers/salt"));
+const encription_1 = __importDefault(require("../helpers/encription"));
 const ownerControl = {
     get(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -163,6 +166,32 @@ const ownerControl = {
                 const customReq = req;
                 const data = yield (0, owner_1.getAllShippingOwnerService)(customReq._id);
                 res.status(200).json({ message: "Semua data shipping", data });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    },
+    resetPasswordSales(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const customReq = req;
+                const body = customReq.body;
+                const idSales = customReq.params.idSales;
+                yield auth_2.default.resetPasswordSales(body);
+                if (!(0, mongoose_1.isValidObjectId)(idSales)) {
+                    throw new responseError_1.default("Invalid parameter", 400);
+                }
+                if (!process.env.SECRET_KEY) {
+                    throw new Error("Invalid env");
+                }
+                const salt = (0, salt_1.default)();
+                const hashPassword = (0, encription_1.default)(salt, body.newPassword, process.env.SECRET_KEY);
+                const result = yield (0, owner_1.resetPasswordSalesServices)(customReq._id, idSales, hashPassword, salt);
+                if (result.matchedCount === 0) {
+                    throw new responseError_1.default("Sales tidak ditemukan", 404);
+                }
+                res.status(200).json({ message: "Berhasil reset password sales" });
             }
             catch (error) {
                 next(error);

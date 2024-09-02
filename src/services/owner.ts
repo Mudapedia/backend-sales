@@ -98,3 +98,24 @@ export const resetPasswordOwnerServices = (
     }
   );
 };
+
+export const resetPasswordSalesServices = (
+  id: string,
+  idSales: string,
+  newPassword: string,
+  salt: string
+) => {
+  return OwnerCol.updateOne(
+    {
+      _id: new mongoose.Types.ObjectId(id),
+      "sales._id": new mongoose.Types.ObjectId(idSales),
+    },
+    {
+      $set: {
+        "sales.$.password": newPassword,
+        "sales.$.salt": salt,
+        "sales.$.token": null,
+      },
+    }
+  );
+};
